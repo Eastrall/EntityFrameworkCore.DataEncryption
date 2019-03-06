@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3EC10767-1816-46B2-A78E-9856071CCFDB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{E4089551-AF4E-41B3-A6F8-2501A3BE0E0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkCore.Encryption", "src\EntityFrameworkCore.Encryption\EntityFrameworkCore.Encryption.csproj", "{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkCore.Encryption.Test", "test\EntityFrameworkCore.Encryption.Test\EntityFrameworkCore.Encryption.Test.csproj", "{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{3A8D800E-77BD-44EF-82DB-C672281ECAAA}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.travis.yml = .travis.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B} = {3EC10767-1816-46B2-A78E-9856071CCFDB}
+		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB} = {E4089551-AF4E-41B3-A6F8-2501A3BE0E0C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4997BAE9-29BF-4D79-AE5E-5605E7A0F049}
+	EndGlobalSection
+EndGlobal
