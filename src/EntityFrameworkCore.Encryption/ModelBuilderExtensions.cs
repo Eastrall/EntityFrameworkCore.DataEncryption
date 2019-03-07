@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Encryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Encryption
 {
+    /// <summary>
+    /// Provides extensions for the <see cref="ModelBuilder"/>.
+    /// </summary>
     public static class ModelBuilderExtensions
     {
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
@@ -31,12 +31,5 @@ namespace Microsoft.EntityFrameworkCore.Encryption
                 }
             }
         }
-    }
-
-    public interface IEncryptionProvider
-    {
-        string Encrypt(string dataToEncrypt);
-
-        string Decrypt(string dataToDecrypt);
     }
 }
