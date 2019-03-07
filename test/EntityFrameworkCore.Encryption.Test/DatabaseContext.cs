@@ -4,7 +4,7 @@
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.UseEncryption();
+            modelBuilder.UseEncryption(null);
         }
     }
 }
