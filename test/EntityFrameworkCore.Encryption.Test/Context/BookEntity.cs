@@ -21,5 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
 
         [ForeignKey(nameof(AuthorId))]
         public AuthorEntity Author { get; set; }
+
+        public BookEntity(string name, int numberOfPages)
+        {
+            this.Name = name;
+            this.NumberOfPages = numberOfPages;
+        }
     }
 }

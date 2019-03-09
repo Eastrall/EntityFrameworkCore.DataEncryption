@@ -12,6 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
         private readonly CipherMode _mode;
         private readonly PaddingMode _padding;
 
+        /// <summary>
+        /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
+        /// </summary>
+        /// <param name="key">AES key used for the symetric encryption.</param>
+        /// <param name="initializationVector">AES Initialization Vector used for the symetric encryption.</param>
+        /// <param name="mode">Mode for operation used in the symetric encryption.</param>
+        /// <param name="padding">Padding mode used in the symetric encryption.</param>
         public AesProvider(byte[] key, byte[] initializationVector, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
         {
             this._key = key;
@@ -70,5 +77,34 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
 
             return aes;
         }
+
+        /// <summary>
+        /// Generates an AES key.
+        /// </summary>
+        /// <remarks>
+        /// The key size of the Aes encryption must be 128, 192 or 256 bits. 
+        /// Please check https://blogs.msdn.microsoft.com/shawnfa/2006/10/09/the-differences-between-rijndael-and-aes/ for more informations.
+        /// </remarks>
+        /// <param name="keySize">AES Key size</param>
+        /// <returns></returns>
+        public static byte[] GenerateKey(AesKeySize keySize)
+        {
+            var crypto = new AesCryptoServiceProvider
+            {
+                KeySize = (int)keySize,
+                BlockSize = 128
+            };
+
+            crypto.GenerateKey();
+
+            return crypto.Key;
+        }
+    }
+
+    public enum AesKeySize : uint
+    {
+        AES128Bits = 128,
+        AES192Bits = 192,
+        AES256Bits = 256
     }
 }
