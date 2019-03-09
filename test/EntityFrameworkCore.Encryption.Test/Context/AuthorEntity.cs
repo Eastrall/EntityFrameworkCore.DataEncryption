@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
         [Required]
         [Encrypted]
         public string FirstName { get; set; }
-
+        
         [Required]
         [Encrypted]
         public string LastName { get; set; }
@@ -23,8 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
 
         public IList<BookEntity> Books { get; set; }
 
-        public AuthorEntity()
+        public AuthorEntity(string firstName, string lastName, int age)
         {
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.Age = age;
             this.Books = new List<BookEntity>();
         }
     }

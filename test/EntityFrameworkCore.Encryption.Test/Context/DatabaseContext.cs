@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
 {
-    public sealed class DatabaseContext : DbContext
+    public class DatabaseContext : DbContext
     {
         private readonly IEncryptionProvider _encryptionProvider;
 
@@ -8,18 +8,16 @@
 
         public DbSet<BookEntity> Books { get; set; }
 
-        public DatabaseContext()
+        public DatabaseContext(DbContextOptions options)
+            : base(options)
         { }
 
-        public DatabaseContext(DbContextOptions<DatabaseContext> options, IEncryptionProvider encryptionProvider = null)
+        public DatabaseContext(DbContextOptions options, IEncryptionProvider encryptionProvider = null)
             : base(options)
         {
             this._encryptionProvider = encryptionProvider;
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.UseEncryption(this._encryptionProvider);
-        }
+            => modelBuilder.UseEncryption(this._encryptionProvider);
     }
 }
