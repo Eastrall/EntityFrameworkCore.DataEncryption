@@ -3,8 +3,11 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Provider
+namespace Microsoft.EntityFrameworkCore.Encryption.Providers
 {
+    /// <summary>
+    /// Implements the Advanced Encryption Standard (AES) symmetric algorithm.
+    /// </summary>
     public class AesProvider : IEncryptionProvider
     {
         private readonly byte[] _key;
@@ -27,6 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
             this._padding = padding;
         }
 
+        /// <summary>
+        /// Encrypt a string using the AES algorithm.
+        /// </summary>
+        /// <param name="dataToEncrypt"></param>
+        /// <returns></returns>
         public string Encrypt(string dataToEncrypt)
         {
             byte[] input = Encoding.UTF8.GetBytes(dataToEncrypt);
@@ -46,6 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
             return Convert.ToBase64String(encrypted);
         }
 
+        /// <summary>
+        /// Decrypt a string using the AES algorithm.
+        /// </summary>
+        /// <param name="dataToDecrypt"></param>
+        /// <returns></returns>
         public string Decrypt(string dataToDecrypt)
         {
             byte[] input = Convert.FromBase64String(dataToDecrypt);
@@ -87,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
         /// </remarks>
         /// <param name="keySize">AES Key size</param>
         /// <returns></returns>
-        public static byte[] GenerateKey(AesKeySize keySize)
+        public static AesKeyInfo GenerateKey(AesKeySize keySize)
         {
             var crypto = new AesCryptoServiceProvider
             {
@@ -96,15 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Provider
             };
 
             crypto.GenerateKey();
+            crypto.GenerateIV();
 
-            return crypto.Key;
+            return new AesKeyInfo(crypto.Key, crypto.IV);
         }
-    }
-
-    public enum AesKeySize : uint
-    {
-        AES128Bits = 128,
-        AES192Bits = 192,
-        AES256Bits = 256
     }
 }

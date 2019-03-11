@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Encryption.Provider;
+﻿using Microsoft.EntityFrameworkCore.Encryption.Providers;
 using Microsoft.EntityFrameworkCore.Encryption.Test.Context;
+using Microsoft.EntityFrameworkCore.Encryption.Test.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -10,14 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Providers
     public class AesProviderTest
     {
         [Theory]
-        [InlineData("Hello world", AesKeySize.AES128Bits)]
-        [InlineData("Hello world", AesKeySize.AES192Bits)]
-        [InlineData("Hello world", AesKeySize.AES256Bits)]
-        public void EncryptDecryptStringTest(string input, AesKeySize aesKeyType)
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
+        public void EncryptDecryptStringTest(AesKeySize keySize)
         {
-            byte[] encryptionKey = AesProvider.GenerateKey(aesKeyType);
-            byte[] iv = Enumerable.Repeat<byte>(0, 16).ToArray();
-            var provider = new AesProvider(encryptionKey, iv);
+            string input = StringHelper.RandomString(20);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+            var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
 
             string encryptedData = provider.Encrypt(input);
             Assert.NotNull(encryptedData);
@@ -34,10 +35,32 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Providers
         [InlineData(AesKeySize.AES256Bits)]
         public void GenerateAesKeyTest(AesKeySize keySize)
         {
-            var key = AesProvider.GenerateKey(keySize);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
 
-            Assert.NotNull(key);
-            Assert.Equal((int)keySize / 8, key.Length);
+            Assert.NotNull(encryptionKeyInfo.Key);
+            Assert.NotNull(encryptionKeyInfo.IV);
+            Assert.Equal((int)keySize / 8, encryptionKeyInfo.Key.Length);
+        }
+
+        [Theory]
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
+        public void CompareTwoAesKeysInstancesTest(AesKeySize keySize)
+        {
+            AesKeyInfo encryptionKeyInfo1 = AesProvider.GenerateKey(keySize);
+            AesKeyInfo encryptionKeyInfo2 = AesProvider.GenerateKey(keySize);
+            AesKeyInfo encryptionKeyInfoCopy = encryptionKeyInfo1;
+
+            Assert.NotNull(encryptionKeyInfo1.Key);
+            Assert.NotNull(encryptionKeyInfo1.IV);
+            Assert.NotNull(encryptionKeyInfo2.Key);
+            Assert.NotNull(encryptionKeyInfo2.IV);
+            Assert.True(encryptionKeyInfo1 == encryptionKeyInfoCopy);
+            Assert.True(encryptionKeyInfo1.Equals(encryptionKeyInfoCopy));
+            Assert.True(encryptionKeyInfo1 != encryptionKeyInfo2);
+            Assert.True(encryptionKeyInfo1.GetHashCode() != encryptionKeyInfo2.GetHashCode());
+            Assert.False(encryptionKeyInfo1.Equals(0));
         }
 
         [Fact]
@@ -60,9 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Providers
 
         private void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
         {
-            byte[] encryptionKey = AesProvider.GenerateKey(aesKeyType);
-            byte[] iv = Enumerable.Repeat<byte>(0, 16).ToArray();
-            var provider = new AesProvider(encryptionKey, iv, CipherMode.CBC, PaddingMode.Zeros);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
+            var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV, CipherMode.CBC, PaddingMode.Zeros);
             var author = new AuthorEntity("John", "Doe", 42)
             {
                 Books = new List<BookEntity>()
@@ -71,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Providers
                     new BookEntity("Dolor sit amet", 390)
                 }
             };
-            var authorEncryptedFirstName = provider.Encrypt(author.FirstName);
-            var authorEncryptedLastName = provider.Encrypt(author.LastName);
-            var firstBookEncryptedName = provider.Encrypt(author.Books.First().Name);
-            var lastBookEncryptedName = provider.Encrypt(author.Books.Last().Name);
+            string authorEncryptedFirstName = provider.Encrypt(author.FirstName);
+            string authorEncryptedLastName = provider.Encrypt(author.LastName);
+            string firstBookEncryptedName = provider.Encrypt(author.Books.First().Name);
+            string lastBookEncryptedName = provider.Encrypt(author.Books.Last().Name);
 
             using (var contextFactory = new DatabaseContextFactory())
             {
