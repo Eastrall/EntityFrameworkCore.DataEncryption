@@ -10,6 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Encryption
     /// </summary>
     public static class ModelBuilderExtensions
     {
+        /// <summary>
+        /// Enables string encryption on this model using an encryption provider.
+        /// </summary>
+        /// <param name="modelBuilder">Current <see cref="ModelBuilder"/> instance.</param>
+        /// <param name="encryptionProvider">Encryption provider.</param>
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
         {
             if (encryptionProvider == null)
