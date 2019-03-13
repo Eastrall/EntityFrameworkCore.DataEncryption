@@ -1,15 +1,16 @@
 language: csharp
 mono: none
-dotnet: 2.2.2
-env:
-- DOTNET_CLI_TELEMETRY_OPTOUT=1
-- PROJECT_NAME="EntityFrameworkCore.Encryption"
+dotnet: 2.2.105
+global:
+  - DOTNET_CLI_TELEMETRY_OPTOUT=1
+  - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+  - PROJECT_NAME="EntityFrameworkCore.Encryption"
 matrix:
   include:
     - os: linux
       sudo: required
-      dist: trusty
-      name: Linux (Ubuntu Trusty)
+      dist: xenial
+      name: Linux (Ubuntu Xenial)
     - os: osx
       name: Mac OS X
     - os: windows
