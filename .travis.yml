@@ -1,10 +1,12 @@
 language: csharp
 mono: none
 dotnet: 2.2.105
-global:
-  - DOTNET_CLI_TELEMETRY_OPTOUT=1
-  - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
-  - PROJECT_NAME="EntityFrameworkCore.Encryption"
+env:
+  global:
+    - PROJECT_NAME="EntityFrameworkCore.Encryption"
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  
 matrix:
   include:
     - os: linux
@@ -13,8 +15,6 @@ matrix:
       name: Linux (Ubuntu Xenial)
     - os: osx
       name: Mac OS X
-    - os: windows
-      name: Windows
 
 script:
   - dotnet restore
