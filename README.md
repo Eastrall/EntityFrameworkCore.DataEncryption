@@ -13,7 +13,7 @@
 
 Install the package from [NuGet](https://www.nuget.org/) or from the `Package Manager Console` :
 ```powershell
-PM> Install-Packet EntityFrameworkCore.Extensions
+PM> Install-Package EntityFrameworkCore.Extensions
 ```
 
 ## How to use
