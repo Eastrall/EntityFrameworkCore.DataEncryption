@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
 {
     public sealed class AuthorEntity
     {

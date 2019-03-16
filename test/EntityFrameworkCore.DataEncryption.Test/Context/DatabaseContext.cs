@@ -1,4 +1,4 @@
-﻿namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
+﻿namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
 {
     public class DatabaseContext : DbContext
     {

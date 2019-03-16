@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3EC10767-181
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{E4089551-AF4E-41B3-A6F8-2501A3BE0E0C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Encryption", "src\EntityFrameworkCore.Encryption\EntityFrameworkCore.Encryption.csproj", "{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.DataEncryption", "src\EntityFrameworkCore.DataEncryption\EntityFrameworkCore.DataEncryption.csproj", "{D037F8D0-E606-4C5A-8669-DB6AAE7B056B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Encryption.Test", "test\EntityFrameworkCore.Encryption.Test\EntityFrameworkCore.Encryption.Test.csproj", "{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.DataEncryption.Test", "test\EntityFrameworkCore.DataEncryption.Test\EntityFrameworkCore.DataEncryption.Test.csproj", "{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{3A8D800E-77BD-44EF-82DB-C672281ECAAA}"
 	ProjectSection(SolutionItems) = preProject

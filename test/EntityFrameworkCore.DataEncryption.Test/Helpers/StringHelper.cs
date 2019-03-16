@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Test.Helpers
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers
 {
     public static class StringHelper
     {

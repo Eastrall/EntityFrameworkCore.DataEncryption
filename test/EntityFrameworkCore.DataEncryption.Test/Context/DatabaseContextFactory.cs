@@ -2,7 +2,7 @@
 using System;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
 {
     /// <summary>
     /// Database context factory used to create entity framework new <see cref="DbContext"/>.

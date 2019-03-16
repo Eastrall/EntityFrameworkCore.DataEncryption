@@ -1,4 +1,4 @@
-﻿namespace Microsoft.EntityFrameworkCore.Encryption
+﻿namespace Microsoft.EntityFrameworkCore.DataEncryption
 {
     /// <summary>
     /// Provides a mechanism for implementing a custom encryption provider.

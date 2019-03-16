@@ -1,4 +1,4 @@
-﻿namespace Microsoft.EntityFrameworkCore.Encryption.Providers
+﻿namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
 {
     /// <summary>
     /// Specifies the available AES Key sizes used for generating encryption keys and initialization vectors.
