@@ -5,7 +5,7 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Encryption</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Encryption</RootNamespace>
     <Version>1.0.0</Version>
-    <Authors>Filipe GP</Authors>
+    <Authors>Filipe GOMES PEIXOTO</Authors>
     <PackageLicenseUrl>https://github.com/Eastrall/EntityFrameworkCore.Encryption/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.Encryption</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Eastrall/EntityFrameworkCore.Encryption.git</RepositoryUrl>
@@ -14,6 +14,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
     <LangVersion>7.3</LangVersion>
+    <PackageIconUrl>https://github.com/Eastrall/EntityFrameworkCore.Encryption/blob/master/Resources/icon.png</PackageIconUrl>
+    <Copyright>Filipe GOMES PEIXOTO © 2019</Copyright>
+    <Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
   </PropertyGroup>
 
   <ItemGroup>
