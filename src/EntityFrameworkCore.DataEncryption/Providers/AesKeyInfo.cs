@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Providers
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
 {
     /// <summary>
     /// Defines an AES key info structure containing a Key and Initialization Vector used for the AES encryption algorithm.

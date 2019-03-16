@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFrameworkCore.Encryption\EntityFrameworkCore.Encryption.csproj" />
+    <ProjectReference Include="..\..\src\EntityFrameworkCore.DataEncryption\EntityFrameworkCore.DataEncryption.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Providers
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
 {
     /// <summary>
     /// Implements the Advanced Encryption Standard (AES) symmetric algorithm.

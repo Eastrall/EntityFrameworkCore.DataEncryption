@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Encryption.Providers;
-using Microsoft.EntityFrameworkCore.Encryption.Test.Context;
-using Microsoft.EntityFrameworkCore.Encryption.Test.Helpers;
+﻿using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
+using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
+using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Test.Providers
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
 {
     public class AesProviderTest
     {

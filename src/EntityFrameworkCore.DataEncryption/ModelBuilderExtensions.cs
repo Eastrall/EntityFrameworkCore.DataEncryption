@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Encryption.Internal;
+﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Encryption
+namespace Microsoft.EntityFrameworkCore.DataEncryption
 {
     /// <summary>
     /// Provides extensions for the <see cref="ModelBuilder"/>.

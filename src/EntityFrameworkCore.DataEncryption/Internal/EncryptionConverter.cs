@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Microsoft.EntityFrameworkCore.Encryption.Internal
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal
 {
     /// <summary>
     /// Defines the internal encryption converter for string values.
