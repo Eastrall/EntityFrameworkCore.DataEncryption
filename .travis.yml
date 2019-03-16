@@ -1,21 +1,28 @@
 language: csharp
 mono: none
-dotnet: 2.2.2
+dotnet: 2.2.105
+
 env:
-- DOTNET_CLI_TELEMETRY_OPTOUT=1
-- PROJECT_NAME="EntityFrameworkCore.Encryption"
+  global:
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+env:
+  - PROJECT_NAME="EntityFrameworkCore.Encryption"
+
 matrix:
   include:
     - os: linux
       sudo: required
-      dist: trusty
-      name: Linux (Ubuntu Trusty)
+      dist: xenial
+      name: Linux (Ubuntu Xenial)
     - os: osx
       name: Mac OS X
-    - os: windows
-      name: Windows
 
 script:
   - dotnet restore
   - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release
-  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release
+  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
+
+after_script:
+  - bash <(curl -s https://codecov.io/bash) 

@@ -2,6 +2,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Encryption.Providers
 {
+    /// <summary>
+    /// Defines an AES key info structure containing a Key and Initialization Vector used for the AES encryption algorithm.
+    /// </summary>
     public readonly struct AesKeyInfo : IEquatable<AesKeyInfo>
     {
         /// <summary>
