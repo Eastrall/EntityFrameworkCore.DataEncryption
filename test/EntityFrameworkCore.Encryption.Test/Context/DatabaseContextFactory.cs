@@ -4,9 +4,25 @@ using System.Data.Common;
 
 namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
 {
-    public class DatabaseContextFactory : IDisposable
+    /// <summary>
+    /// Database context factory used to create entity framework new <see cref="DbContext"/>.
+    /// </summary>
+    public sealed class DatabaseContextFactory : IDisposable
     {
-        private DbConnection _connection;
+        private const string DatabaseConnectionString = "DataSource=:memory:";
+        private readonly DbConnection _connection;
+
+        /// <summary>
+        /// Creates a new <see cref="DatabaseContextFactory"/> instance.
+        /// </summary>
+        public DatabaseContextFactory()
+        {
+            this._connection = new SqliteConnection(DatabaseConnectionString);
+            this._connection.Open();
+
+            using (var dbContext = new DatabaseContext(this.CreateOptions<DatabaseContext>()))
+                dbContext.Database.EnsureCreated();
+        }
 
         /// <summary>
         /// Creates a new in memory database context.
@@ -16,15 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
         /// <returns></returns>
         public TContext CreateContext<TContext>(IEncryptionProvider provider = null) where TContext : DbContext
         {
-            if (_connection == null)
-            {
-                _connection = new SqliteConnection("DataSource=:memory:");
-                _connection.Open();
-
-                using (var dbContext = new DatabaseContext(this.CreateOptions<DatabaseContext>()))
-                    dbContext.Database.EnsureCreated();
-            }
-
             if (provider == null)
                 return Activator.CreateInstance(typeof(TContext), this.CreateOptions<TContext>()) as TContext;
 
@@ -47,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Context
             if (this._connection != null)
             {
                 this._connection.Dispose();
-                this._connection = null;
             }
         }
     }

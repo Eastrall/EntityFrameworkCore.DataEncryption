@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Providers
     /// </summary>
     public class AesProvider : IEncryptionProvider
     {
+        private const int AesBlockSize = 128;
         private readonly byte[] _key;
         private readonly byte[] _initializationVector;
         private readonly CipherMode _mode;
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Providers
             var crypto = new AesCryptoServiceProvider
             {
                 KeySize = (int)keySize,
-                BlockSize = 128
+                BlockSize = AesBlockSize
             };
 
             crypto.GenerateKey();
