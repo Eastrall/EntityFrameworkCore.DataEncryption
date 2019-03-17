@@ -11,7 +11,7 @@
 
 Install the package from [NuGet](https://www.nuget.org/) or from the `Package Manager Console` :
 ```powershell
-PM> Install-Package EntityFrameworkCore.Extensions
+PM> Install-Package EntityFrameworkCore.DataEncryption
 ```
 
 ## How to use
