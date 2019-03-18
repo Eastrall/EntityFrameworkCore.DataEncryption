@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption.svg?branch=master)](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2bfb621fd6fc453488d022a3eec8069e)](https://www.codacy.com/app/Eastrall/EntityFrameworkCore.DataEncryption?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eastrall/EntityFrameworkCore.DataEncryption&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption/branch/master/graph/badge.svg)](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption)
-![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)
+[![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
 
 `EntityFrameworkCore.DataEncryption` is a [Microsoft Entity Framework Core](https://github.com/aspnet/EntityFrameworkCore) extension to add support of encrypted fields using built-in or custom encryption providers.
 
