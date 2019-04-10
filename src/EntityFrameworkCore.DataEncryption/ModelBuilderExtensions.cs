@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
             {
                 foreach (IMutableProperty property in entityType.GetProperties())
                 {
-                    if (property.ClrType == typeof(string))
+                    if (property.ClrType == typeof(string) && !IsDiscriminator(property))
                     {
                         object[] attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
 
@@ -35,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
                     }
                 }
             }
+        }
+
+        private static bool IsDiscriminator(IMutableProperty property)
+        {
+            return property.Name == "Discriminator" && property.PropertyInfo == null;
         }
     }
 }
