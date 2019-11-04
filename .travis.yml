@@ -1,6 +1,5 @@
 language: csharp
 mono: none
-dotnet: 2.2.105
 
 env:
   global:
@@ -15,9 +14,19 @@ matrix:
     - os: linux
       sudo: required
       dist: xenial
-      name: Linux (Ubuntu Xenial)
+      dotnet: 2.2
+      name: .NET Core 2 : Linux (Ubuntu Xenial)
+    - os: Linux
+      sudo: required
+      dist: xenial
+      dotnet: 3.0.100
+      name: .NET Core 3 : Linux (Ubuntu Xenial)
     - os: osx
-      name: Mac OS X
+      dotnet: 2.2
+      name: .NET Core 2 : Mac OS X
+    - os: osx
+      dotnet: 3.0.100
+      name: .NET Core 3 : Mac OS X
 
 script:
   - dotnet restore
