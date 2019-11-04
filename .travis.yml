@@ -15,18 +15,18 @@ matrix:
       sudo: required
       dist: xenial
       dotnet: 2.2
-      name: .NET Core 2 : Linux (Ubuntu Xenial)
+      name: ".NET Core 2 : Linux (Ubuntu Xenial)"
     - os: Linux
       sudo: required
       dist: xenial
       dotnet: 3.0.100
-      name: .NET Core 3 : Linux (Ubuntu Xenial)
+      name: ".NET Core 3 : Linux (Ubuntu Xenial)"
     - os: osx
       dotnet: 2.2
-      name: .NET Core 2 : Mac OS X
+      name: ".NET Core 2 : Mac OS X"
     - os: osx
       dotnet: 3.0.100
-      name: .NET Core 3 : Mac OS X
+      name: ".NET Core 3 : Mac OS X"
 
 script:
   - dotnet restore
