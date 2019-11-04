@@ -28,7 +28,6 @@ jobs:
       
 
 script:
-  - dotnet restore
   - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release -f $FRAMEWORK
   - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release -f $FRAMEWORK_TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
 
