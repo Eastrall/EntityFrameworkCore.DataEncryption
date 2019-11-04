@@ -1,5 +1,6 @@
 language: csharp
 mono: none
+dotnet: 3.0.100
 
 env:
   global:
@@ -14,18 +15,16 @@ jobs:
   - os: linux
     dist: xenial
     sudo: required
-    dotnet: 2.2.402
     env:
-    - FRAMEWORK="netstandard2.0"
-    - FRAMEWORK_TEST="netcoreapp2.2"
+      - FRAMEWORK="netstandard2.0"
+      - FRAMEWORK_TEST="netcoreapp2.2"
     name: ".NET Core 2 (Linux: Ubuntu Xenial)"
   - os: Linux
     dist: xenial
     sudo: required
-    dotnet: 3.0.100
     env:
-    - FRAMEWORK="netstandard2.1"
-    - FRAMEWORK_TEST="netcoreapp3.0"
+      - FRAMEWORK="netstandard2.1"
+      - FRAMEWORK_TEST="netcoreapp3.0"
     name: ".NET Core 3 (Linux: Ubuntu Xenial)"
       
 
