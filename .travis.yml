@@ -13,22 +13,13 @@ jobs:
   - os: linux
     dist: xenial
     sudo: required
-    env:
-      - FRAMEWORK="netstandard2.0"
-      - FRAMEWORK_TEST="netcoreapp2.2"
-    name: ".NET Core 2 (Linux: Ubuntu Xenial)"
-  - os: linux
-    dist: xenial
-    sudo: required
-    env:
-      - FRAMEWORK="netstandard2.1"
-      - FRAMEWORK_TEST="netcoreapp3.0"
     name: ".NET Core 3 (Linux: Ubuntu Xenial)"
+  - os: osx
+    name: ".NET Core 3 (Mac: OS X)"
       
-
 script:
-  - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release -f $FRAMEWORK
-  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release -f $FRAMEWORK_TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
+  - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release -f netstandard2.1
+  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release -f netcoreapp3.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
 
 after_script:
   - bash <(curl -s https://codecov.io/bash) 
