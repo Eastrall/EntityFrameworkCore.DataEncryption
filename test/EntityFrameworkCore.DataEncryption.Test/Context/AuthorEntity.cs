@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Encryption.Test.Context;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,13 +14,19 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         [Required]
         [Encrypted]
         public string FirstName { get; set; }
-        
+
         [Required]
         [Encrypted]
         public string LastName { get; set; }
 
         [Required]
         public int Age { get; set; }
+
+        [Required]
+        public int PublisherId { get; set; }
+
+        [ForeignKey(nameof(PublisherId))]
+        public PublisherEntity Publisher { get; set; }
 
         public IList<BookEntity> Books { get; set; }
 

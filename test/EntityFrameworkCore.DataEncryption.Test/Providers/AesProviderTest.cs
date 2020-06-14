@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
+using Microsoft.EntityFrameworkCore.Encryption.Test.Context;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -85,56 +86,83 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         {
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
             var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV, CipherMode.CBC, PaddingMode.Zeros);
-            var author = new AuthorEntity("John", "Doe", 42)
+            var publisher = new PublisherEntity("Rita Book Publishing", "161 Dakota Street")
             {
-                Books = new List<BookEntity>()
-                {
-                    new BookEntity("Lorem Ipsum", 300),
-                    new BookEntity("Dolor sit amet", 390)
+                Authors = new List<AuthorEntity> {
+                    new AuthorEntity("John", "Doe", 42)
+                    {
+                        Books = new List<BookEntity>()
+                        {
+                            new BookEntity("Lorem Ipsum", 300),
+                            new BookEntity("Dolor sit amet", 390)
+                        }
+                    }
                 }
             };
-            string authorEncryptedFirstName = provider.Encrypt(author.FirstName);
-            string authorEncryptedLastName = provider.Encrypt(author.LastName);
-            string firstBookEncryptedName = provider.Encrypt(author.Books.First().Name);
-            string lastBookEncryptedName = provider.Encrypt(author.Books.Last().Name);
+
+            string publisherEncryptedName = provider.Encrypt(publisher.Name);
+            string publisherEncryptedAddress = provider.Encrypt(publisher.Address);
+            string authorEncryptedFirstName = provider.Encrypt(publisher.Authors.First().FirstName);
+            string authorEncryptedLastName = provider.Encrypt(publisher.Authors.First().LastName);
+            string firstBookEncryptedName = provider.Encrypt(publisher.Authors.First().Books.First().Name);
+            string lastBookEncryptedName = provider.Encrypt(publisher.Authors.First().Books.Last().Name);
 
             using (var contextFactory = new DatabaseContextFactory())
             {
                 // Save data to an encrypted database context
                 using (var dbContext = contextFactory.CreateContext<TContext>(provider))
                 {
-                    dbContext.Authors.Add(author);
+                    dbContext.Publishers.Add(publisher);
                     dbContext.SaveChanges();
                 }
 
                 // Read encrypted data from normal context and compare with encrypted data.
                 using (var dbContext = contextFactory.CreateContext<DatabaseContext>())
                 {
-                    var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
+                    var publisherFromDb = dbContext.Publishers
+                        .Include(x => x.Authors)
+                        .ThenInclude(x => x.Books)
+                        .FirstOrDefault();
 
-                    Assert.NotNull(authorFromDb);
-                    Assert.Equal(authorEncryptedFirstName, authorFromDb.FirstName);
-                    Assert.Equal(authorEncryptedLastName, authorFromDb.LastName);
-                    Assert.NotNull(authorFromDb.Books);
-                    Assert.NotEmpty(authorFromDb.Books);
-                    Assert.Equal(2, authorFromDb.Books.Count);
-                    Assert.Equal(firstBookEncryptedName, authorFromDb.Books.First().Name);
-                    Assert.Equal(lastBookEncryptedName, authorFromDb.Books.Last().Name);
+                    Assert.NotNull(publisherFromDb);
+                    Assert.Equal(publisherEncryptedName, publisherFromDb.Name);
+                    Assert.Equal(publisherEncryptedAddress, publisherFromDb.Address);
+                    Assert.NotNull(publisherFromDb.Authors);
+                    Assert.NotEmpty(publisherFromDb.Authors);
+                    Assert.Equal(1, publisherFromDb.Authors.Count);
+                    Assert.NotNull(publisherFromDb.Authors.FirstOrDefault());
+                    Assert.Equal(authorEncryptedFirstName, publisherFromDb.Authors.FirstOrDefault().FirstName);
+                    Assert.Equal(authorEncryptedLastName, publisherFromDb.Authors.FirstOrDefault().LastName);
+                    Assert.NotNull(publisherFromDb.Authors.FirstOrDefault().Books);
+                    Assert.NotEmpty(publisherFromDb.Authors.FirstOrDefault().Books);
+                    Assert.Equal(2, publisherFromDb.Authors.FirstOrDefault().Books.Count);
+                    Assert.Equal(firstBookEncryptedName, publisherFromDb.Authors.FirstOrDefault().Books.First().Name);
+                    Assert.Equal(lastBookEncryptedName, publisherFromDb.Authors.FirstOrDefault().Books.Last().Name);
                 }
 
                 // Read decrypted data and compare with original data
                 using (var dbContext = contextFactory.CreateContext<TContext>(provider))
                 {
-                    var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
+                    var publisherFromDb = dbContext.Publishers
+                        .Include(x => x.Authors)
+                        .ThenInclude(x => x.Books)
+                        .FirstOrDefault();
 
-                    Assert.NotNull(authorFromDb);
-                    Assert.Equal(author.FirstName, authorFromDb.FirstName);
-                    Assert.Equal(author.LastName, authorFromDb.LastName);
-                    Assert.NotNull(authorFromDb.Books);
-                    Assert.NotEmpty(authorFromDb.Books);
-                    Assert.Equal(2, authorFromDb.Books.Count);
-                    Assert.Equal(author.Books.First().Name, authorFromDb.Books.First().Name);
-                    Assert.Equal(author.Books.Last().Name, authorFromDb.Books.Last().Name);
+                    Assert.NotNull(publisherFromDb);
+                    Assert.Equal(publisher.Name, publisherFromDb.Name);
+                    Assert.Equal(publisher.Address, publisherFromDb.Address);
+                    Assert.NotNull(publisherFromDb.Authors);
+                    Assert.NotEmpty(publisherFromDb.Authors);
+                    Assert.Equal(1, publisherFromDb.Authors.Count);
+
+                    Assert.NotNull(publisherFromDb.Authors.FirstOrDefault());
+                    Assert.Equal(publisher.Authors.First().FirstName, publisherFromDb.Authors.FirstOrDefault().FirstName);
+                    Assert.Equal(publisher.Authors.First().LastName, publisherFromDb.Authors.FirstOrDefault().LastName);
+                    Assert.NotNull(publisherFromDb.Authors.FirstOrDefault().Books);
+                    Assert.NotEmpty(publisherFromDb.Authors.FirstOrDefault().Books);
+                    Assert.Equal(2, publisherFromDb.Authors.FirstOrDefault().Books.Count);
+                    Assert.Equal(publisher.Authors.First().Books.First().Name, publisherFromDb.Authors.FirstOrDefault().Books.First().Name);
+                    Assert.Equal(publisher.Authors.First().Books.Last().Name, publisherFromDb.Authors.FirstOrDefault().Books.Last().Name);
                 }
             }
         }
