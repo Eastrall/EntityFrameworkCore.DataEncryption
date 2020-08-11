@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
-    <Version>1.1.0</Version>
+    <Version>2.0.0</Version>
     <Authors>Filipe GOMES PEIXOTO</Authors>
     <PackageId>EntityFrameworkCore.DataEncryption</PackageId>
     <PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption</PackageProjectUrl>
@@ -13,12 +13,13 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>Filipe GOMES PEIXOTO © 2019</Copyright>
+    <Copyright>Filipe GOMES PEIXOTO © 2019 - 2020</Copyright>
     <Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Add support for Entity Framework Core 3</PackageReleaseNotes>
+    <PackageReleaseNotes>- Remove initializationVector parameter from `AesProvider` constructor.
+- Apply unique IV for each row.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

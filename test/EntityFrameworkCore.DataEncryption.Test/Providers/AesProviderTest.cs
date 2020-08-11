@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         {
             string input = StringHelper.RandomString(20);
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
-            var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
+            var provider = new AesProvider(encryptionKeyInfo.Key);
 
             string encryptedData = provider.Encrypt(input);
             Assert.NotNull(encryptedData);
@@ -66,25 +66,25 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         [Fact]
         public void EncryptUsingAes128Provider()
         {
-            this.ExecuteAesEncryptionTest<Aes128EncryptedDatabaseContext>(AesKeySize.AES128Bits);
+            ExecuteAesEncryptionTest<Aes128EncryptedDatabaseContext>(AesKeySize.AES128Bits);
         }
 
         [Fact]
         public void EncryptUsingAes192Provider()
         {
-            this.ExecuteAesEncryptionTest<Aes192EncryptedDatabaseContext>(AesKeySize.AES192Bits);
+            ExecuteAesEncryptionTest<Aes192EncryptedDatabaseContext>(AesKeySize.AES192Bits);
         }
 
         [Fact]
         public void EncryptUsingAes256Provider()
         {
-            this.ExecuteAesEncryptionTest<Aes256EncryptedDatabaseContext>(AesKeySize.AES256Bits);
+            ExecuteAesEncryptionTest<Aes256EncryptedDatabaseContext>(AesKeySize.AES256Bits);
         }
 
         private void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
         {
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
-            var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV, CipherMode.CBC, PaddingMode.Zeros);
+            var provider = new AesProvider(encryptionKeyInfo.Key, CipherMode.CBC, PaddingMode.Zeros);
             var author = new AuthorEntity("John", "Doe", 42)
             {
                 Books = new List<BookEntity>()
@@ -93,10 +93,6 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
                     new BookEntity("Dolor sit amet", 390)
                 }
             };
-            string authorEncryptedFirstName = provider.Encrypt(author.FirstName);
-            string authorEncryptedLastName = provider.Encrypt(author.LastName);
-            string firstBookEncryptedName = provider.Encrypt(author.Books.First().Name);
-            string lastBookEncryptedName = provider.Encrypt(author.Books.Last().Name);
 
             using (var contextFactory = new DatabaseContextFactory())
             {
@@ -105,21 +101,6 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
                 {
                     dbContext.Authors.Add(author);
                     dbContext.SaveChanges();
-                }
-
-                // Read encrypted data from normal context and compare with encrypted data.
-                using (var dbContext = contextFactory.CreateContext<DatabaseContext>())
-                {
-                    var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
-
-                    Assert.NotNull(authorFromDb);
-                    Assert.Equal(authorEncryptedFirstName, authorFromDb.FirstName);
-                    Assert.Equal(authorEncryptedLastName, authorFromDb.LastName);
-                    Assert.NotNull(authorFromDb.Books);
-                    Assert.NotEmpty(authorFromDb.Books);
-                    Assert.Equal(2, authorFromDb.Books.Count);
-                    Assert.Equal(firstBookEncryptedName, authorFromDb.Books.First().Name);
-                    Assert.Equal(lastBookEncryptedName, authorFromDb.Books.Last().Name);
                 }
 
                 // Read decrypted data and compare with original data
