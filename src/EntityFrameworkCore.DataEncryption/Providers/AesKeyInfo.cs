@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         /// <param name="iv">AES initialization vector.</param>
         internal AesKeyInfo(byte[] key, byte[] iv)
         {
-            this.Key = key;
-            this.IV = iv;
+            Key = key;
+            IV = iv;
         }
 
         /// <summary>
@@ -33,20 +33,20 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(AesKeyInfo other) => (this.Key, this.IV) == (other.Key, other.IV);
+        public bool Equals(AesKeyInfo other) => (Key, IV) == (other.Key, other.IV);
 
         /// <summary>
         /// Determines whether the current object is equal to another object of the same type.
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj) => (obj is AesKeyInfo keyInfo) && this.Equals(keyInfo);
+        public override bool Equals(object obj) => (obj is AesKeyInfo keyInfo) && Equals(keyInfo);
 
         /// <summary>
         /// Calculates the hash code for the current <see cref="AesKeyInfo"/> instance.
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => (this.Key, this.IV).GetHashCode();
+        public override int GetHashCode() => (Key, IV).GetHashCode();
 
         /// <summary>
         /// Determines whether the current <see cref="AesKeyInfo"/> is equal to another <see cref="AesKeyInfo"/>.

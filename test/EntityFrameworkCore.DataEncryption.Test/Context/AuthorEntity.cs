@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
 
         public AuthorEntity(string firstName, string lastName, int age)
         {
-            this.FirstName = firstName;
-            this.LastName = lastName;
-            this.Age = age;
-            this.Books = new List<BookEntity>();
+            FirstName = firstName;
+            LastName = lastName;
+            Age = age;
+            Books = new List<BookEntity>();
         }
     }
 }

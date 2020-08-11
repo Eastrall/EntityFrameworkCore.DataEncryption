@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         /// </summary>
         public DatabaseContextFactory()
         {
-            this._connection = new SqliteConnection(DatabaseConnectionString);
-            this._connection.Open();
+            _connection = new SqliteConnection(DatabaseConnectionString);
+            _connection.Open();
 
-            using (var dbContext = new DatabaseContext(this.CreateOptions<DatabaseContext>()))
+            using (var dbContext = new DatabaseContext(CreateOptions<DatabaseContext>()))
                 dbContext.Database.EnsureCreated();
         }
 
@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         public TContext CreateContext<TContext>(IEncryptionProvider provider = null) where TContext : DbContext
         {
             if (provider == null)
-                return Activator.CreateInstance(typeof(TContext), this.CreateOptions<TContext>()) as TContext;
+                return Activator.CreateInstance(typeof(TContext), CreateOptions<TContext>()) as TContext;
 
-            return Activator.CreateInstance(typeof(TContext), this.CreateOptions<TContext>(), provider) as TContext;
+            return Activator.CreateInstance(typeof(TContext), CreateOptions<TContext>(), provider) as TContext;
         }
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         /// </summary>
         public void Dispose()
         {
-            if (this._connection != null)
+            if (_connection != null)
             {
-                this._connection.Dispose();
+                _connection.Dispose();
             }
         }
     }

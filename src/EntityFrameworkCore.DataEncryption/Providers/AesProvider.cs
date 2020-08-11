@@ -11,10 +11,24 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
     public class AesProvider : IEncryptionProvider
     {
         private const int AesBlockSize = 128;
+        private const int InitializationVectorSize = 16;
+
         private readonly byte[] _key;
-        private readonly byte[] _initializationVector;
         private readonly CipherMode _mode;
         private readonly PaddingMode _padding;
+
+        /// <summary>
+        /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
+        /// </summary>
+        /// <param name="key">AES key used for the symetric encryption.</param>
+        /// <param name="mode">Mode for operation used in the symetric encryption.</param>
+        /// <param name="padding">Padding mode used in the symetric encryption.</param>
+        public AesProvider(byte[] key, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
+        {
+            _key = key;
+            _mode = mode;
+            _padding = padding;
+        }
 
         /// <summary>
         /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
@@ -23,12 +37,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         /// <param name="initializationVector">AES Initialization Vector used for the symetric encryption.</param>
         /// <param name="mode">Mode for operation used in the symetric encryption.</param>
         /// <param name="padding">Padding mode used in the symetric encryption.</param>
+        [Obsolete("This constructor has been deprecated and will be removed in future versions. Please use the AesProvider(byte[], CipherMode, PaddingMode) constructor instead.")]
         public AesProvider(byte[] key, byte[] initializationVector, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
+            : this(key, mode, padding)
         {
-            this._key = key;
-            this._initializationVector = initializationVector;
-            this._mode = mode;
-            this._padding = padding;
         }
 
         /// <summary>
@@ -41,14 +53,25 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
             byte[] input = Encoding.UTF8.GetBytes(dataToEncrypt);
             byte[] encrypted = null;
 
-            using (var aes = this.CreateNewAesEncryptor())
+            using (AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider())
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    using (var crypto = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                        crypto.Write(input, 0, input.Length);
+                cryptoServiceProvider.GenerateIV();
 
-                    encrypted = memoryStream.ToArray();
+                byte[] initializationVector = cryptoServiceProvider.IV;
+
+                using (ICryptoTransform encryptor = cryptoServiceProvider.CreateEncryptor(_key, initializationVector))
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+                        {
+                            memoryStream.Write(initializationVector, 0, initializationVector.Length);
+                            cryptoStream.Write(input, 0, input.Length);
+                            cryptoStream.FlushFinalBlock();
+                        }
+
+                        encrypted = memoryStream.ToArray();
+                    }
                 }
             }
 
@@ -63,33 +86,36 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         public string Decrypt(string dataToDecrypt)
         {
             byte[] input = Convert.FromBase64String(dataToDecrypt);
+
             string decrypted = string.Empty;
 
-            using (var aes = this.CreateNewAesEncryptor())
+            using (var memoryStream = new MemoryStream(input))
             {
-                using (var memoryStream = new MemoryStream(input))
-                using (var crypto = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
-                using (var sr = new StreamReader(crypto))
-                    decrypted = sr.ReadToEnd().Trim('\0');
+                var initializationVector = new byte[InitializationVectorSize];
+
+                memoryStream.Read(initializationVector, 0, initializationVector.Length);
+
+                using AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider();
+                using ICryptoTransform cryptoTransform = cryptoServiceProvider.CreateDecryptor(_key, initializationVector);
+                using var crypto = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read);
+                using var reader = new StreamReader(crypto);
+
+                decrypted = reader.ReadToEnd().Trim('\0');
             }
 
             return decrypted;
         }
 
-        /// <summary>
-        /// Creates a new <see cref="Aes"/> instance with the current configuration.
-        /// </summary>
-        /// <returns></returns>
-        private Aes CreateNewAesEncryptor()
+        private AesCryptoServiceProvider CreateCryptographyProvider()
         {
-            var aes = Aes.Create();
-
-            aes.Mode = this._mode;
-            aes.Padding = this._padding;
-            aes.Key = this._key;
-            aes.IV = this._initializationVector;
-
-            return aes;
+            return new AesCryptoServiceProvider
+            {
+                BlockSize = AesBlockSize,
+                Mode = _mode,
+                Padding = _padding,
+                Key = _key,
+                KeySize = _key.Length * 8
+            };
         }
 
         /// <summary>
