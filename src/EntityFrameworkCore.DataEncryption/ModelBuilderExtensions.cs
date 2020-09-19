@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+﻿using System;
+using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -29,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
                     if (property.ClrType == typeof(string) && !IsDiscriminator(property))
                     {
                         object[] attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
-
                         if (attributes.Any())
                             property.SetValueConverter(encryptionConverter);
                     }
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
 
         private static bool IsDiscriminator(IMutableProperty property)
         {
-            return property.Name == "Discriminator" && property.PropertyInfo == null;
+            return property.Name == "Discriminator" || property.PropertyInfo == null;
         }
     }
 }
