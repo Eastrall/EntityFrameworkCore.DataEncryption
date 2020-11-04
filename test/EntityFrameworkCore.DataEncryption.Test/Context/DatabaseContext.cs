@@ -18,6 +18,8 @@
             _encryptionProvider = encryptionProvider;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.UseEncryption(_encryptionProvider);
+        {
+            modelBuilder.UseEncryption(_encryptionProvider);
+        }
     }
 }
