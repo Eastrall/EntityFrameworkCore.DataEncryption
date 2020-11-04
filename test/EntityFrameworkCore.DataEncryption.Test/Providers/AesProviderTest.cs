@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -61,6 +62,15 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             Assert.True(encryptionKeyInfo1 != encryptionKeyInfo2);
             Assert.True(encryptionKeyInfo1.GetHashCode() != encryptionKeyInfo2.GetHashCode());
             Assert.False(encryptionKeyInfo1.Equals(0));
+        }
+
+        [Fact]
+        public void CreateDataContextWithoutProvider()
+        {
+            using (var contextFactory = new DatabaseContextFactory())
+            {
+                Assert.Throws<ArgumentNullException>(() => contextFactory.CreateContext<SimpleEncryptedDatabaseContext>());
+            }
         }
 
         [Fact]
@@ -135,6 +145,12 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         public class Aes256EncryptedDatabaseContext : DatabaseContext
         {
             public Aes256EncryptedDatabaseContext(DbContextOptions options, IEncryptionProvider encryptionProvider = null)
+                : base(options, encryptionProvider) { }
+        }
+
+        public class SimpleEncryptedDatabaseContext : DatabaseContext
+        {
+            public SimpleEncryptedDatabaseContext(DbContextOptions options, IEncryptionProvider encryptionProvider = null)
                 : base(options, encryptionProvider) { }
         }
     }

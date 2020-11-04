@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.ComponentModel.DataAnnotations;
