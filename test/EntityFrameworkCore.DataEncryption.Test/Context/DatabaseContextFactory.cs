@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         {
             _connection = new SqliteConnection(DatabaseConnectionString);
             _connection.Open();
-
-            using (var dbContext = new DatabaseContext(CreateOptions<DatabaseContext>()))
-                dbContext.Database.EnsureCreated();
         }
 
         /// <summary>
@@ -32,10 +29,11 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         /// <returns></returns>
         public TContext CreateContext<TContext>(IEncryptionProvider provider = null) where TContext : DbContext
         {
-            if (provider == null)
-                return Activator.CreateInstance(typeof(TContext), CreateOptions<TContext>()) as TContext;
+            var context = Activator.CreateInstance(typeof(TContext), CreateOptions<TContext>(), provider) as TContext;
 
-            return Activator.CreateInstance(typeof(TContext), CreateOptions<TContext>(), provider) as TContext;
+            context.Database.EnsureCreated();
+
+            return context;
         }
 
         /// <summary>
