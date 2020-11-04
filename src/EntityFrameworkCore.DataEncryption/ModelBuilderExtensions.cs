@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         {
             if (encryptionProvider == null)
             {
-                return;
+                throw new ArgumentNullException(nameof(encryptionProvider), "Cannot initialize encryption with a null provider.");
             }
 
             var encryptionConverter = new EncryptionConverter(encryptionProvider);
