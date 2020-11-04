@@ -18,8 +18,8 @@ jobs:
     name: ".NET Core 3 (Mac: OS X)"
       
 script:
-  - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release -f netstandard2.1
-  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release -f netcoreapp3.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
+  - dotnet build ./src/$PROJECT_NAME/$PROJECT_NAME.csproj -c Release
+  - dotnet test ./test/$PROJECT_NAME.Test/$PROJECT_NAME.Test.csproj -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
 
 after_script:
   - bash <(curl -s https://codecov.io/bash) 
