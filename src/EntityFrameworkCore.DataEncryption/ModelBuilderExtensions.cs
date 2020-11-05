@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
         {
             if (encryptionProvider == null)
-                return;
+            {
+                throw new ArgumentNullException(nameof(encryptionProvider), "Cannot initialize encryption with a null provider.");
+            }
 
             var encryptionConverter = new EncryptionConverter(encryptionProvider);
 
@@ -31,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
                     {
                         object[] attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
                         if (attributes.Any())
+                        {
                             property.SetValueConverter(encryptionConverter);
+                        }
                     }
                 }
             }
