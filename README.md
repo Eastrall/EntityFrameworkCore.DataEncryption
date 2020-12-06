@@ -7,6 +7,12 @@
 
 `EntityFrameworkCore.DataEncryption` is a [Microsoft Entity Framework Core](https://github.com/aspnet/EntityFrameworkCore) extension to add support of encrypted fields using built-in or custom encryption providers.
 
+## Disclaimer
+
+This library has been developed initialy for a personal project of mine. It provides a simple way to encrypt column data.
+
+I **do not** take responsability if you use this in a production environment and loose your encryption key.
+
 ## How to install
 
 Install the package from [NuGet](https://www.nuget.org/) or from the `Package Manager Console` :

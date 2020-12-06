@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         /// <param name="encryptionProvider">Encryption provider.</param>
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
         {
-            if (encryptionProvider == null)
+            if (encryptionProvider is null)
             {
                 throw new ArgumentNullException(nameof(encryptionProvider), "Cannot initialize encryption with a null provider.");
             }
@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
                     if (property.ClrType == typeof(string) && !IsDiscriminator(property))
                     {
                         object[] attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
+
                         if (attributes.Any())
                         {
                             property.SetValueConverter(encryptionConverter);
