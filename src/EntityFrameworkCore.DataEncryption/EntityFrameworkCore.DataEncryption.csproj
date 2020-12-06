@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <LangVersion>9.0</LangVersion>
     <AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
     <Version>2.0.0</Version>
