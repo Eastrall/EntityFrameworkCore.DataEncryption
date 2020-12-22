@@ -1,7 +1,6 @@
 # EntityFrameworkCore.DataEncryption
 
-[![Build Status](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption.svg?branch=master)](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2bfb621fd6fc453488d022a3eec8069e)](https://www.codacy.com/app/Eastrall/EntityFrameworkCore.DataEncryption?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eastrall/EntityFrameworkCore.DataEncryption&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_apis/build/status/EntityFrameworkCore.DataEncryption?branchName=refs%2Fpull%2F14%2Fmerge)](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_build/latest?definitionId=9&branchName=refs%2Fpull%2F14%2Fmerge)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2bfb621fd6fc453488d022a3eec8069e)](https://www.codacy.com/app/Eastrall/EntityFrameworkCore.DataEncryption?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eastrall/EntityFrameworkCore.DataEncryption&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption/branch/master/graph/badge.svg)](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption)
 [![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
 

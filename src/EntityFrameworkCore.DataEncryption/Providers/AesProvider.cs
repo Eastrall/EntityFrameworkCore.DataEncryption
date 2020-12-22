@@ -10,8 +10,15 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
     /// </summary>
     public class AesProvider : IEncryptionProvider
     {
-        private const int AesBlockSize = 128;
-        private const int InitializationVectorSize = 16;
+        /// <summary>
+        /// AES block size constant.
+        /// </summary>
+        public const int AesBlockSize = 128;
+
+        /// <summary>
+        /// Initialization vector size constant.
+        /// </summary>
+        public const int InitializationVectorSize = 16;
 
         private readonly byte[] _key;
         private readonly CipherMode _mode;
@@ -59,20 +66,16 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
 
                 byte[] initializationVector = cryptoServiceProvider.IV;
 
-                using (ICryptoTransform encryptor = cryptoServiceProvider.CreateEncryptor(_key, initializationVector))
+                using ICryptoTransform encryptor = cryptoServiceProvider.CreateEncryptor(_key, initializationVector);
+                using var memoryStream = new MemoryStream();
+                using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
                 {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                        {
-                            memoryStream.Write(initializationVector, 0, initializationVector.Length);
-                            cryptoStream.Write(input, 0, input.Length);
-                            cryptoStream.FlushFinalBlock();
-                        }
-
-                        encrypted = memoryStream.ToArray();
-                    }
+                    memoryStream.Write(initializationVector, 0, initializationVector.Length);
+                    cryptoStream.Write(input, 0, input.Length);
+                    cryptoStream.FlushFinalBlock();
                 }
+
+                encrypted = memoryStream.ToArray();
             }
 
             return Convert.ToBase64String(encrypted);
