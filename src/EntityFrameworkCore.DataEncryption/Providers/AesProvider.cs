@@ -109,6 +109,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
             return decrypted;
         }
 
+        /// <summary>
+        /// Generates an AES cryptography provider.
+        /// </summary>
+        /// <returns></returns>
         private AesCryptoServiceProvider CreateCryptographyProvider()
         {
             return new AesCryptoServiceProvider
