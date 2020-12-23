@@ -18,6 +18,11 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         /// <param name="encryptionProvider">Encryption provider.</param>
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
         {
+            if (modelBuilder is null)
+            {
+                throw new ArgumentNullException(nameof(modelBuilder), "The given model builder cannot be null");
+            }
+
             if (encryptionProvider is null)
             {
                 throw new ArgumentNullException(nameof(encryptionProvider), "Cannot initialize encryption with a null provider.");
@@ -42,9 +47,12 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
             }
         }
 
-        private static bool IsDiscriminator(IMutableProperty property)
-        {
-            return property.Name == "Discriminator" || property.PropertyInfo == null;
-        }
+        /// <summary>
+        /// Gets a boolean value that indicates if the given property is a descrimitator.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        private static bool IsDiscriminator(IMutableProperty property) 
+            => property.Name == "Discriminator" || property.PropertyInfo == null;
     }
 }
