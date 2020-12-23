@@ -107,3 +107,16 @@ public class DatabaseContext : DbContext
 	}
 }
 ```
+
+
+## Important notes
+
+### AES Provider structure
+
+The following section describes how encrypted fields using the built-in AES provider encrypts data.
+
+For each encrypted field, the provider generates a new IV with a length of `16 bytes`. These 16 bytes are written at the begining of the `CryptoStream` followed by the actual input to encrypt.
+
+Similarly, for reading, the provider reads the first **16 bytes** from the input data converted as a `byte[]` to retrieve the initialization vector and then read the encrypted content.
+
+For more information, checkout the [`AesProvider`](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/master/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs#L58) class.
