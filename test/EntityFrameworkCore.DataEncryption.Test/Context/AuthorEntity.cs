@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        public Guid UniqueId { get; set; }
 
         [Required]
         [Encrypted]
@@ -29,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
             LastName = lastName;
             Age = age;
             Books = new List<BookEntity>();
+            UniqueId = Guid.NewGuid();
         }
     }
 }

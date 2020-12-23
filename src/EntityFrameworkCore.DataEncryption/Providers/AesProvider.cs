@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         private readonly PaddingMode _padding;
 
         /// <summary>
+        /// Event fired when a decrypt error occurs.
+        /// </summary>
+        public event EventHandler<Exception> DecryptError;
+
+        /// <summary>
         /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
         /// </summary>
         /// <param name="key">AES key used for the symetric encryption.</param>
@@ -88,25 +93,34 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         /// <returns></returns>
         public string Decrypt(string dataToDecrypt)
         {
-            byte[] input = Convert.FromBase64String(dataToDecrypt);
-
-            string decrypted = string.Empty;
-
-            using (var memoryStream = new MemoryStream(input))
+            try
             {
-                var initializationVector = new byte[InitializationVectorSize];
+                byte[] input = Convert.FromBase64String(dataToDecrypt);
 
-                memoryStream.Read(initializationVector, 0, initializationVector.Length);
+                string decrypted = string.Empty;
 
-                using AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider();
-                using ICryptoTransform cryptoTransform = cryptoServiceProvider.CreateDecryptor(_key, initializationVector);
-                using var crypto = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read);
-                using var reader = new StreamReader(crypto);
+                using (var memoryStream = new MemoryStream(input))
+                {
+                    var initializationVector = new byte[InitializationVectorSize];
 
-                decrypted = reader.ReadToEnd().Trim('\0');
+                    memoryStream.Read(initializationVector, 0, initializationVector.Length);
+
+                    using AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider();
+                    using ICryptoTransform cryptoTransform = cryptoServiceProvider.CreateDecryptor(_key, initializationVector);
+                    using var crypto = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read);
+                    using var reader = new StreamReader(crypto);
+
+                    decrypted = reader.ReadToEnd().Trim('\0');
+                }
+
+                return decrypted;
+            }
+            catch (Exception e)
+            {
+                DecryptError?.Invoke(this, e);
             }
 
-            return decrypted;
+            return dataToDecrypt;
         }
 
         /// <summary>

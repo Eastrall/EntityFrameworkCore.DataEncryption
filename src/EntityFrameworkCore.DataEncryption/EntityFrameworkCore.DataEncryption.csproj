@@ -16,11 +16,17 @@
     <PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
     <LangVersion>8.0</LangVersion>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>Filipe GOMES PEIXOTO © 2019 - 2020</Copyright>
+    <Copyright>Filipe GOMES PEIXOTO © 2019 - 2021</Copyright>
     <Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReleaseNotes>- Remove initializationVector parameter from `AesProvider` constructor.
 - Apply unique IV for each row.</PackageReleaseNotes>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +39,10 @@
       <PackagePath></PackagePath>
     </None>
     <None Include="Resources/icon.png" Pack="true" Visible="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
 </Project>
