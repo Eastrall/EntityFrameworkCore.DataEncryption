@@ -45,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Migration.Internal
                         entityProperty.SetValue(entity, newValue);
                     }
                 }
-
-                context.SaveChanges();
             }
+
+            context.SaveChanges();
         }
     }
 }
