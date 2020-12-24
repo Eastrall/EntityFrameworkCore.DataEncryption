@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Migration.Internal;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers.Obsolete;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -28,17 +27,19 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Migration
         /// <summary>
         /// Process a data migration to migrate plain text data into encrypted data.
         /// </summary>
-        public void MigrateOriginalToEncrypted()
+        /// <param name="encryptionProvider">Encryption provider.</param>
+        public void MigrateOriginalToEncrypted(IEncryptionProvider encryptionProvider)
         {
-            throw new NotImplementedException();
+            MigrateData(new OriginalToEncryptedMigrator(encryptionProvider));
         }
 
         /// <summary>
         /// Process a data migration to migrate encryted data into plain text data.
         /// </summary>
-        public void MigrateEncryptedToOriginal()
+        /// <param name="encryptionProvider">Encryption provider.</param>
+        public void MigrateEncryptedToOriginal(IEncryptionProvider encryptionProvider)
         {
-            throw new NotImplementedException();
+            MigrateData(new EncryptedToOriginalMigrator(encryptionProvider));
         }
 
         /// <summary>
