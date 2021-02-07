@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
 
         public BookEntity(string name, int numberOfPages)
         {
-            this.Name = name;
-            this.NumberOfPages = numberOfPages;
+            Name = name;
+            NumberOfPages = numberOfPages;
         }
     }
 }

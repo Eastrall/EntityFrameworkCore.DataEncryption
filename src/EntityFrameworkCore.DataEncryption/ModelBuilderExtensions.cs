@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -17,8 +18,15 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         /// <param name="encryptionProvider">Encryption provider.</param>
         public static void UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
         {
-            if (encryptionProvider == null)
-                return;
+            if (modelBuilder is null)
+            {
+                throw new ArgumentNullException(nameof(modelBuilder), "The given model builder cannot be null");
+            }
+
+            if (encryptionProvider is null)
+            {
+                throw new ArgumentNullException(nameof(encryptionProvider), "Cannot initialize encryption with a null provider.");
+            }
 
             var encryptionConverter = new EncryptionConverter(encryptionProvider);
 
@@ -31,15 +39,20 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
                         object[] attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
 
                         if (attributes.Any())
+                        {
                             property.SetValueConverter(encryptionConverter);
+                        }
                     }
                 }
             }
         }
 
-        private static bool IsDiscriminator(IMutableProperty property)
-        {
-            return property.Name == "Discriminator" && property.PropertyInfo == null;
-        }
+        /// <summary>
+        /// Gets a boolean value that indicates if the given property is a descrimitator.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        private static bool IsDiscriminator(IMutableProperty property) 
+            => property.Name == "Discriminator" || property.PropertyInfo == null;
     }
 }

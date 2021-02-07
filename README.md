@@ -1,11 +1,17 @@
 # EntityFrameworkCore.DataEncryption
 
-[![Build Status](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption.svg?branch=master)](https://travis-ci.org/Eastrall/EntityFrameworkCore.DataEncryption)
+[![Build Status](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_apis/build/status/EntityFrameworkCore.DataEncryption?branchName=refs%2Fpull%2F14%2Fmerge)](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_build/latest?definitionId=9&branchName=refs%2Fpull%2F14%2Fmerge)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2bfb621fd6fc453488d022a3eec8069e)](https://www.codacy.com/app/Eastrall/EntityFrameworkCore.DataEncryption?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eastrall/EntityFrameworkCore.DataEncryption&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption/branch/master/graph/badge.svg)](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption)
 [![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
 
 `EntityFrameworkCore.DataEncryption` is a [Microsoft Entity Framework Core](https://github.com/aspnet/EntityFrameworkCore) extension to add support of encrypted fields using built-in or custom encryption providers.
+
+## Disclaimer
+
+This library has been developed initialy for a personal project of mine. It provides a simple way to encrypt column data.
+
+I **do not** take responsability if you use this in a production environment and loose your encryption key.
 
 ## How to install
 
@@ -162,3 +168,16 @@ public class DatabaseContext : DbContext
 	}
 }
 ```
+
+
+## Important notes
+
+### AES Provider structure
+
+The following section describes how encrypted fields using the built-in AES provider encrypts data.
+
+For each encrypted field, the provider generates a new IV with a length of `16 bytes`. These 16 bytes are written at the begining of the `CryptoStream` followed by the actual input to encrypt.
+
+Similarly, for reading, the provider reads the first **16 bytes** from the input data converted as a `byte[]` to retrieve the initialization vector and then read the encrypted content.
+
+For more information, checkout the [`AesProvider`](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/master/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs#L58) class.
