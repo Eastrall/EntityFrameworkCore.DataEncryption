@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
-using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
-using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
+using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
+using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
+using Microsoft.EntityFrameworkCore.Encryption.Test.Context;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
