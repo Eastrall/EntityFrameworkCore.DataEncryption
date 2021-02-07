@@ -51,7 +51,6 @@ public class DatabaseContext : DbContext
 	// Get key and IV from a Base64String or any other ways.
 	// You can generate a key and IV using "AesProvider.GenerateKey()"
 	private readonly byte[] _encryptionKey = ...; 
-	private readonly byte[] _encryptionIV = ...;
 	private readonly IEncryptionProvider _provider;
 
 	public DbSet<UserEntity> Users { get; set; }
@@ -59,7 +58,7 @@ public class DatabaseContext : DbContext
 	public DatabaseContext(DbContextOptions options)
 		: base(options)
 	{
-		this._provider = new AesProvider(this._encryptionKey, this._encryptionIV);
+		this._provider = new AesProvider(this._encryptionKey);
 	}
 	
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -107,11 +106,10 @@ public class UserEntity
 
     public class DatabaseContext : DbContext
     {
-        // Get key and IV from a Base64String or any other ways.
-        // You can generate a key and IV using "AesProvider.GenerateKey()"
+        // Get key from a Base64String or any other ways.
+        // You can generate a key using "AesProvider.GenerateKey()"
         private readonly byte[] _encryptionKey = ...;
 
-        private readonly byte[] _encryptionIV = ...;
         private readonly IEncryptionProvider _provider;
 
         public DbSet<UserEntity> Users { get; set; }
@@ -119,7 +117,7 @@ public class UserEntity
         public DatabaseContext(DbContextOptions options)
             : base(options)
         {
-            this._provider = new AesProvider(this._encryptionKey, this._encryptionIV);
+            this._provider = new AesProvider(this._encryptionKey);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
