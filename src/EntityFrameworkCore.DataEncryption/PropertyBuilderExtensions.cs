@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+﻿using System;
+using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption
@@ -14,9 +15,14 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="encryptionProvider">The encryption provider to use .</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-        public static PropertyBuilder<string> IsEncrypted(this PropertyBuilder<string> propertyBuilder, IEncryptionProvider encryptionProvider)
+        public static PropertyBuilder<string> IsEncrypted(this PropertyBuilder<string> propertyBuilder,
+            IEncryptionProvider encryptionProvider)
         {
-            if (encryptionProvider == null) return propertyBuilder;
+            if (encryptionProvider == null)
+            {
+                throw new ArgumentNullException(nameof(encryptionProvider),
+                    "Cannot initialize encryption with a null provider.");
+            }
 
             var encryptionConverter = new EncryptionConverter(encryptionProvider);
 
