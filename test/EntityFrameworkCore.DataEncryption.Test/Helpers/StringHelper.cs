@@ -1,21 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Security;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers
 {
-    public static class StringHelper
-    {
-        private static readonly string Characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        private static readonly Random Randomizer = new Random();
+	public static class StringHelper
+	{
+		private static readonly string Characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		private static readonly Random Randomizer = new();
 
-        /// <summary>
-        /// Generates a new string.
-        /// </summary>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        public static string RandomString(int length) 
-            => new string(Enumerable.Repeat(Characters, length).Select(s => s[Randomizer.Next(s.Length)]).ToArray());
-    }
+		public static string RandomString(int length)
+		{
+			var result = new char[length];
+			for (int i = 0; i < length; i++)
+			{
+				char c = Characters[Randomizer.Next(Characters.Length)];
+				result[i] = c;
+			}
+
+			return new(result);
+		}
+
+		public static SecureString RandomSecureString(int length)
+		{
+			var result = new SecureString();
+			for (int i = 0; i < length; i++)
+			{
+				char c = Characters[Randomizer.Next(Characters.Length)];
+				result.AppendChar(c);
+			}
+
+			return result;
+		}
+	}
 }

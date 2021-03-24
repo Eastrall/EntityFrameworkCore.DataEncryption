@@ -1,38 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <LangVersion>9.0</LangVersion>
-    <AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
-    <Version>2.0.0</Version>
-    <Authors>Filipe GOMES PEIXOTO</Authors>
-    <PackageId>EntityFrameworkCore.DataEncryption</PackageId>
-    <PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
-    <LangVersion>8.0</LangVersion>
-    <PackageIcon>icon.png</PackageIcon>
-    <Copyright>Filipe GOMES PEIXOTO © 2019 - 2020</Copyright>
-    <Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Remove initializationVector parameter from `AesProvider` constructor.
-- Apply unique IV for each row.</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
+		<RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
+		<Version>3.0.0</Version>
+		<Authors>Filipe GOMES PEIXOTO</Authors>
+		<PackageId>EntityFrameworkCore.DataEncryption</PackageId>
+		<PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
+		<PackageIcon>icon.png</PackageIcon>
+		<Copyright>Filipe GOMES PEIXOTO © 2019 - 2020</Copyright>
+		<Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReleaseNotes>
+			- Add support for storing data as binary or Base64
+			- Add support for SecureString and binary model properties
+		</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="Resources/icon.png" Pack="true" Visible="true" PackagePath="" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="Resources/icon.png" Pack="true" Visible="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Microsoft.EntityFrameworkCore.Encryption.Test</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 </Project>

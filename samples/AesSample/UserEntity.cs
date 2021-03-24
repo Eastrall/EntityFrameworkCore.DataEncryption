@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security;
 
 namespace AesSample
 {
@@ -19,5 +20,7 @@ namespace AesSample
         [Required]
         [Encrypted]
         public string Email { get; set; }
+
+        public SecureString Password { get; set; }
     }
 }
