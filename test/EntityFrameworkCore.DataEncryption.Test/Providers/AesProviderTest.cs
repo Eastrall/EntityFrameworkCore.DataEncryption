@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             ExecuteAesEncryptionTest<Aes256EncryptedDatabaseContext>(AesKeySize.AES256Bits);
         }
 
-        private void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
+        private static void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
         {
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
             var provider = new AesProvider(encryptionKeyInfo.Key, CipherMode.CBC, PaddingMode.Zeros);
