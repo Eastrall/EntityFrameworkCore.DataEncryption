@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
             var provider = new AesProvider(encryptionKeyInfo.Key);
 
-            string encryptedData = provider.Encrypt(input, Encoding.UTF8.GetBytes, ConverterBuilder.StreamToBase64String);
+            string encryptedData = provider.Encrypt(input, Encoding.UTF8.GetBytes, StandardConverters.StreamToBase64String);
             Assert.NotNull(encryptedData);
 
-            string decryptedData = provider.Decrypt(encryptedData, Convert.FromBase64String, ConverterBuilder.StreamToString);
+            string decryptedData = provider.Decrypt(encryptedData, Convert.FromBase64String, StandardConverters.StreamToString);
             Assert.NotNull(decryptedData);
 
             Assert.Equal(input, decryptedData);

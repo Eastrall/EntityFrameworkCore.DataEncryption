@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal
 {
     internal static class EncodingExtensions
     {
-        public static byte[] GetBytes(this Encoding encoding, SecureString value)
+        internal static byte[] GetBytes(this Encoding encoding, SecureString value)
         {
             if (encoding is null)
             {
@@ -50,33 +50,6 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal
                 if (valuePtr != IntPtr.Zero)
                 {
                     Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
-                }
-            }
-        }
-
-        public static SecureString GetSecureString(this Encoding encoding, byte[] bytes)
-        {
-            if (encoding is null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
-
-            if (bytes is null || bytes.Length == 0)
-            {
-                return default;
-            }
-
-            unsafe
-            {
-                fixed (byte* pB = bytes)
-                {
-                    int charCount = encoding.GetCharCount(pB, bytes.Length);
-                    Span<char> chars = charCount < 1024 ? stackalloc char[charCount] : new char[charCount];
-                    fixed (char* pC = &MemoryMarshal.GetReference(chars))
-                    {
-                        charCount = encoding.GetChars(pB, bytes.Length, pC, chars.Length);
-                        return new SecureString(pC, charCount);
-                    }
                 }
             }
         }
