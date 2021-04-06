@@ -3,10 +3,17 @@ using System.Security;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers
 {
-    public static class StringHelper
+    public static class DataHelper
     {
         private static readonly string Characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private static readonly Random Randomizer = new();
+
+        public static byte[] RandomBytes(int length)
+        {
+            var result = new byte[length];
+            Randomizer.NextBytes(result);
+            return result;
+        }
 
         public static string RandomString(int length)
         {
