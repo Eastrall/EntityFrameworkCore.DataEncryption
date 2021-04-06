@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bogus;
-using Microsoft.EntityFrameworkCore.DataEncryption;
 using Microsoft.EntityFrameworkCore.DataEncryption.Migration;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
 using Xunit;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Encryption.Test.Migration
                 }).ToList();
         }
 
-        private void AssertAuthor(AuthorEntity expected, AuthorEntity actual)
+        private static void AssertAuthor(AuthorEntity expected, AuthorEntity actual)
         {
             Assert.NotNull(actual);
             Assert.Equal(expected.FirstName, actual.FirstName);
