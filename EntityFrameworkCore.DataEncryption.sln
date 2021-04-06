@@ -20,7 +20,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{3A8D80
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{64C3D7D1-67B8-4070-AE67-C71B761535CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AesSample", "samples\AesSample\AesSample.csproj", "{8AA1E576-4016-4623-96C8-90330F05F9A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AesSample", "samples\AesSample\AesSample.csproj", "{8AA1E576-4016-4623-96C8-90330F05F9A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5EE4E8BE-6B15-49DB-A4A8-D2CD63D5E90C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
