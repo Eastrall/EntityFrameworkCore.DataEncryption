@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
@@ -17,9 +18,28 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         [InlineData(AesKeySize.AES128Bits)]
         [InlineData(AesKeySize.AES192Bits)]
         [InlineData(AesKeySize.AES256Bits)]
+        public void EncryptDecryptByteArrayTest(AesKeySize keySize)
+        {
+            byte[] input = DataHelper.RandomBytes(20);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+            var provider = new AesProvider(encryptionKeyInfo.Key);
+
+            byte[] encryptedData = provider.Encrypt(input, b => b, StandardConverters.StreamToBytes);
+            Assert.NotNull(encryptedData);
+
+            byte[] decryptedData = provider.Decrypt(encryptedData, b => b, StandardConverters.StreamToBytes);
+            Assert.NotNull(decryptedData);
+
+            Assert.Equal(input, decryptedData);
+        }
+
+        [Theory]
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
         public void EncryptDecryptStringTest(AesKeySize keySize)
         {
-            string input = StringHelper.RandomString(20);
+            string input = DataHelper.RandomString(20);
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
             var provider = new AesProvider(encryptionKeyInfo.Key);
 
@@ -30,6 +50,28 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             Assert.NotNull(decryptedData);
 
             Assert.Equal(input, decryptedData);
+        }
+
+        [Theory]
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
+        public void EncryptDecryptSecureStringTest(AesKeySize keySize)
+        {
+            SecureString input = DataHelper.RandomSecureString(20);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+            var provider = new AesProvider(encryptionKeyInfo.Key);
+
+            string encryptedData = provider.Encrypt(input, Encoding.UTF8.GetBytes, StandardConverters.StreamToBase64String);
+            Assert.NotNull(encryptedData);
+
+            SecureString decryptedData = provider.Decrypt(encryptedData, Convert.FromBase64String, StandardConverters.StreamToSecureString);
+            Assert.NotNull(decryptedData);
+
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            byte[] decryptedBytes = Encoding.UTF8.GetBytes(decryptedData);
+
+            Assert.Equal(inputBytes, decryptedBytes);
         }
 
         [Theory]
@@ -98,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             var provider = new AesProvider(encryptionKeyInfo.Key, CipherMode.CBC, PaddingMode.Zeros);
             var author = new AuthorEntity("John", "Doe", 42)
             {
-                Password = StringHelper.RandomSecureString(10),
+                Password = DataHelper.RandomSecureString(10),
                 Books = new List<BookEntity>
                 {
                     new("Lorem Ipsum", 300),
