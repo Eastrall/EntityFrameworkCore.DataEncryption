@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal
             Encoder = encoder;
         }
 
-        private IEncryptionProvider EncryptionProvider { get; }
-        private Func<TModelType, byte[]> Decoder { get; }
-        private Func<Stream, TModelType> Encoder { get; }
+        private readonly IEncryptionProvider EncryptionProvider;
+        private readonly Func<TModelType, byte[]> Decoder;
+        private readonly Func<Stream, TModelType> Encoder;
+
         internal bool IsEmpty => Decoder is null || Encoder is null;
 
         internal void Deconstruct(out IEncryptionProvider encryptionProvider, out Func<TModelType, byte[]> decoder, out Func<Stream, TModelType> encoder)
