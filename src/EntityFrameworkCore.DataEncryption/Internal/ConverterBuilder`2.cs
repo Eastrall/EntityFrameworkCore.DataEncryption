@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal
             Encoder = encoder;
         }
 
-        private ConverterBuilder<TModelType> ModelType { get; }
-        private Func<TStoreType, byte[]> Decoder { get; }
-        private Func<Stream, TStoreType> Encoder { get; }
+        private readonly ConverterBuilder<TModelType> ModelType;
+        private readonly Func<TStoreType, byte[]> Decoder;
+        private readonly Func<Stream, TStoreType> Encoder;
 
         /// <summary>
         /// Builds the value converter.
