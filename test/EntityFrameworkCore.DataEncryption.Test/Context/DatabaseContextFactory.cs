@@ -9,15 +9,16 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
     /// </summary>
     public sealed class DatabaseContextFactory : IDisposable
     {
-        private const string DatabaseConnectionString = "DataSource=:memory:";
+        private const string InMemoryDatabaseConnectionString = "DataSource=:memory:";
+        private const string DatabaseConnectionString = "DataSource={0}";
         private readonly DbConnection _connection;
 
         /// <summary>
         /// Creates a new <see cref="DatabaseContextFactory"/> instance.
         /// </summary>
-        public DatabaseContextFactory()
+        public DatabaseContextFactory(string databaseName = null)
         {
-            _connection = new SqliteConnection(DatabaseConnectionString);
+            _connection = new SqliteConnection(string.IsNullOrEmpty(databaseName) ? InMemoryDatabaseConnectionString : DatabaseConnectionString.Replace("{0}", databaseName));
             _connection.Open();
         }
 
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         /// </summary>
         /// <typeparam name="TContext"></typeparam>
         /// <returns></returns>
-        private DbContextOptions<TContext> CreateOptions<TContext>() where TContext : DbContext 
+        public DbContextOptions<TContext> CreateOptions<TContext>() where TContext : DbContext
             => new DbContextOptionsBuilder<TContext>().UseSqlite(_connection).Options;
 
         /// <summary>
@@ -49,10 +50,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         /// </summary>
         public void Dispose()
         {
-            if (_connection != null)
-            {
-                _connection.Dispose();
-            }
+            _connection?.Dispose();
         }
     }
 }

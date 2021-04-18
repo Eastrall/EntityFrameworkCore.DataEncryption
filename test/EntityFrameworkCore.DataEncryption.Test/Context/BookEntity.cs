@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
@@ -8,6 +9,8 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        public Guid UniqueId { get; set; }
 
         [Required]
         [Encrypted]
@@ -26,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context
         {
             Name = name;
             NumberOfPages = numberOfPages;
+            UniqueId = Guid.NewGuid();
         }
     }
 }

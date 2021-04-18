@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
 using System;
 using System.Linq;
+using System.Security;
 
 namespace AesSample
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var options = new DbContextOptionsBuilder<DatabaseContext>()
                 .UseInMemoryDatabase(databaseName: "MyInMemoryDatabase")
@@ -23,7 +24,8 @@ namespace AesSample
             {
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john@doe.com"
+                Email = "john@doe.com",
+                Password = BuildPassword(),
             };
 
             context.Users.Add(user);
@@ -31,9 +33,24 @@ namespace AesSample
 
             Console.WriteLine($"Users count: {context.Users.Count()}");
 
-            user = context.Users.FirstOrDefault();
+            user = context.Users.First();
 
-            Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email}");
+            Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email} ({user.Password.Length})");
+        }
+
+        static SecureString BuildPassword()
+        {
+            SecureString result = new();
+            result.AppendChar('L');
+            result.AppendChar('e');
+            result.AppendChar('t');
+            result.AppendChar('M');
+            result.AppendChar('e');
+            result.AppendChar('I');
+            result.AppendChar('n');
+            result.AppendChar('!');
+            result.MakeReadOnly();
+            return result;
         }
     }
 }

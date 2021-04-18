@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore.DataEncryption.Test.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
+using System.Text;
+using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
@@ -15,19 +18,60 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         [InlineData(AesKeySize.AES128Bits)]
         [InlineData(AesKeySize.AES192Bits)]
         [InlineData(AesKeySize.AES256Bits)]
-        public void EncryptDecryptStringTest(AesKeySize keySize)
+        public void EncryptDecryptByteArrayTest(AesKeySize keySize)
         {
-            string input = StringHelper.RandomString(20);
+            byte[] input = DataHelper.RandomBytes(20);
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
             var provider = new AesProvider(encryptionKeyInfo.Key);
 
-            string encryptedData = provider.Encrypt(input);
+            byte[] encryptedData = provider.Encrypt(input, b => b, StandardConverters.StreamToBytes);
             Assert.NotNull(encryptedData);
 
-            string decryptedData = provider.Decrypt(encryptedData);
+            byte[] decryptedData = provider.Decrypt(encryptedData, b => b, StandardConverters.StreamToBytes);
             Assert.NotNull(decryptedData);
 
             Assert.Equal(input, decryptedData);
+        }
+
+        [Theory]
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
+        public void EncryptDecryptStringTest(AesKeySize keySize)
+        {
+            string input = DataHelper.RandomString(20);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+            var provider = new AesProvider(encryptionKeyInfo.Key);
+
+            string encryptedData = provider.Encrypt(input, Encoding.UTF8.GetBytes, StandardConverters.StreamToBase64String);
+            Assert.NotNull(encryptedData);
+
+            string decryptedData = provider.Decrypt(encryptedData, Convert.FromBase64String, StandardConverters.StreamToString);
+            Assert.NotNull(decryptedData);
+
+            Assert.Equal(input, decryptedData);
+        }
+
+        [Theory]
+        [InlineData(AesKeySize.AES128Bits)]
+        [InlineData(AesKeySize.AES192Bits)]
+        [InlineData(AesKeySize.AES256Bits)]
+        public void EncryptDecryptSecureStringTest(AesKeySize keySize)
+        {
+            SecureString input = DataHelper.RandomSecureString(20);
+            AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+            var provider = new AesProvider(encryptionKeyInfo.Key);
+
+            string encryptedData = provider.Encrypt(input, Encoding.UTF8.GetBytes, StandardConverters.StreamToBase64String);
+            Assert.NotNull(encryptedData);
+
+            SecureString decryptedData = provider.Decrypt(encryptedData, Convert.FromBase64String, StandardConverters.StreamToSecureString);
+            Assert.NotNull(decryptedData);
+
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            byte[] decryptedBytes = Encoding.UTF8.GetBytes(decryptedData);
+
+            Assert.Equal(inputBytes, decryptedBytes);
         }
 
         [Theory]
@@ -67,10 +111,9 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
         [Fact]
         public void CreateDataContextWithoutProvider()
         {
-            using (var contextFactory = new DatabaseContextFactory())
-            {
-                Assert.Throws<ArgumentNullException>(() => contextFactory.CreateContext<SimpleEncryptedDatabaseContext>());
-            }
+            using var contextFactory = new DatabaseContextFactory();
+            using var context = contextFactory.CreateContext<SimpleEncryptedDatabaseContext>();
+            Assert.NotNull(context);
         }
 
         [Fact]
@@ -91,42 +134,42 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers
             ExecuteAesEncryptionTest<Aes256EncryptedDatabaseContext>(AesKeySize.AES256Bits);
         }
 
-        private void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
+        private static void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
         {
             AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
             var provider = new AesProvider(encryptionKeyInfo.Key, CipherMode.CBC, PaddingMode.Zeros);
             var author = new AuthorEntity("John", "Doe", 42)
             {
-                Books = new List<BookEntity>()
+                Password = DataHelper.RandomSecureString(10),
+                Books = new List<BookEntity>
                 {
-                    new BookEntity("Lorem Ipsum", 300),
-                    new BookEntity("Dolor sit amet", 390)
+                    new("Lorem Ipsum", 300),
+                    new("Dolor sit amet", 390)
                 }
             };
 
-            using (var contextFactory = new DatabaseContextFactory())
+            using var contextFactory = new DatabaseContextFactory();
+
+            // Save data to an encrypted database context
+            using (var dbContext = contextFactory.CreateContext<TContext>(provider))
             {
-                // Save data to an encrypted database context
-                using (var dbContext = contextFactory.CreateContext<TContext>(provider))
-                {
-                    dbContext.Authors.Add(author);
-                    dbContext.SaveChanges();
-                }
+                dbContext.Authors.Add(author);
+                dbContext.SaveChanges();
+            }
 
-                // Read decrypted data and compare with original data
-                using (var dbContext = contextFactory.CreateContext<TContext>(provider))
-                {
-                    var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
+            // Read decrypted data and compare with original data
+            using (var dbContext = contextFactory.CreateContext<TContext>(provider))
+            {
+                var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
 
-                    Assert.NotNull(authorFromDb);
-                    Assert.Equal(author.FirstName, authorFromDb.FirstName);
-                    Assert.Equal(author.LastName, authorFromDb.LastName);
-                    Assert.NotNull(authorFromDb.Books);
-                    Assert.NotEmpty(authorFromDb.Books);
-                    Assert.Equal(2, authorFromDb.Books.Count);
-                    Assert.Equal(author.Books.First().Name, authorFromDb.Books.First().Name);
-                    Assert.Equal(author.Books.Last().Name, authorFromDb.Books.Last().Name);
-                }
+                Assert.NotNull(authorFromDb);
+                Assert.Equal(author.FirstName, authorFromDb.FirstName);
+                Assert.Equal(author.LastName, authorFromDb.LastName);
+                Assert.NotNull(authorFromDb.Books);
+                Assert.NotEmpty(authorFromDb.Books);
+                Assert.Equal(2, authorFromDb.Books.Count);
+                Assert.Equal(author.Books.First().Name, authorFromDb.Books.First().Name);
+                Assert.Equal(author.Books.Last().Name, authorFromDb.Books.Last().Name);
             }
         }
 

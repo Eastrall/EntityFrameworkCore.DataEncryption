@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
 {
@@ -23,13 +22,14 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         private readonly byte[] _key;
         private readonly CipherMode _mode;
         private readonly PaddingMode _padding;
+        private readonly byte[] _iv;
 
         /// <summary>
-        /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
+        /// Creates a new <see cref="AesProvider"/> instance used to perform symmetric encryption and decryption on strings.
         /// </summary>
-        /// <param name="key">AES key used for the symetric encryption.</param>
-        /// <param name="mode">Mode for operation used in the symetric encryption.</param>
-        /// <param name="padding">Padding mode used in the symetric encryption.</param>
+        /// <param name="key">AES key used for the symmetric encryption.</param>
+        /// <param name="mode">Mode for operation used in the symmetric encryption.</param>
+        /// <param name="padding">Padding mode used in the symmetric encryption.</param>
         public AesProvider(byte[] key, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
         {
             _key = key;
@@ -38,75 +38,90 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers
         }
 
         /// <summary>
-        /// Creates a new <see cref="AesProvider"/> instance used to perform symetric encryption and decryption on strings.
+        /// Creates a new <see cref="AesProvider"/> instance used to perform symmetric encryption and decryption on strings.
         /// </summary>
-        /// <param name="key">AES key used for the symetric encryption.</param>
-        /// <param name="initializationVector">AES Initialization Vector used for the symetric encryption.</param>
-        /// <param name="mode">Mode for operation used in the symetric encryption.</param>
-        /// <param name="padding">Padding mode used in the symetric encryption.</param>
-        [Obsolete("This constructor has been deprecated and will be removed in future versions. Please use the AesProvider(byte[], CipherMode, PaddingMode) constructor instead.")]
-        public AesProvider(byte[] key, byte[] initializationVector, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
-            : this(key, mode, padding)
+        /// <param name="key">AES key used for the symmetric encryption.</param>
+        /// <param name="initializationVector">AES Initialization Vector used for the symmetric encryption.</param>
+        /// <param name="mode">Mode for operation used in the symmetric encryption.</param>
+        /// <param name="padding">Padding mode used in the symmetric encryption.</param>
+        public AesProvider(byte[] key, byte[] initializationVector, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7) : this(key, mode, padding)
         {
+            // Re-enabled to allow for a static IV.
+            // This reduces security, but allows for encrypted values to be searched using LINQ.
+            _iv = initializationVector;
         }
 
-        /// <summary>
-        /// Encrypt a string using the AES algorithm.
-        /// </summary>
-        /// <param name="dataToEncrypt"></param>
-        /// <returns></returns>
-        public string Encrypt(string dataToEncrypt)
+        /// <inheritdoc />
+        public TStore Encrypt<TStore, TModel>(TModel dataToEncrypt, Func<TModel, byte[]> converter, Func<Stream, TStore> encoder)
         {
-            byte[] input = Encoding.UTF8.GetBytes(dataToEncrypt);
-            byte[] encrypted = null;
-
-            using (AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider())
+            if (converter is null)
             {
-                cryptoServiceProvider.GenerateIV();
-
-                byte[] initializationVector = cryptoServiceProvider.IV;
-
-                using ICryptoTransform encryptor = cryptoServiceProvider.CreateEncryptor(_key, initializationVector);
-                using var memoryStream = new MemoryStream();
-                using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                {
-                    memoryStream.Write(initializationVector, 0, initializationVector.Length);
-                    cryptoStream.Write(input, 0, input.Length);
-                    cryptoStream.FlushFinalBlock();
-                }
-
-                encrypted = memoryStream.ToArray();
+                throw new ArgumentNullException(nameof(converter));
             }
 
-            return Convert.ToBase64String(encrypted);
+            if (encoder is null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+
+            byte[] data = converter(dataToEncrypt);
+            if (data is null || data.Length == 0)
+            {
+                return default;
+            }
+
+            using var aes = CreateCryptographyProvider();
+            using var memoryStream = new MemoryStream();
+
+            byte[] initializationVector = _iv;
+            if (initializationVector is null)
+            {
+                aes.GenerateIV();
+                initializationVector = aes.IV;
+                memoryStream.Write(initializationVector, 0, initializationVector.Length);
+            }
+
+            using var transform = aes.CreateEncryptor(_key, initializationVector);
+            using var crypto = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write);
+            crypto.Write(data, 0, data.Length);
+            crypto.FlushFinalBlock();
+
+            memoryStream.Seek(0L, SeekOrigin.Begin);
+            return encoder(memoryStream);
         }
 
-        /// <summary>
-        /// Decrypt a string using the AES algorithm.
-        /// </summary>
-        /// <param name="dataToDecrypt"></param>
-        /// <returns></returns>
-        public string Decrypt(string dataToDecrypt)
+        /// <inheritdoc />
+        public TModel Decrypt<TStore, TModel>(TStore dataToDecrypt, Func<TStore, byte[]> decoder, Func<Stream, TModel> converter)
         {
-            byte[] input = Convert.FromBase64String(dataToDecrypt);
-
-            string decrypted = string.Empty;
-
-            using (var memoryStream = new MemoryStream(input))
+            if (decoder is null)
             {
-                var initializationVector = new byte[InitializationVectorSize];
+                throw new ArgumentNullException(nameof(decoder));
+            }
 
+            if (converter is null)
+            {
+                throw new ArgumentNullException(nameof(converter));
+            }
+
+            byte[] data = decoder(dataToDecrypt);
+            if (data is null || data.Length == 0)
+            {
+                return default;
+            }
+
+            using var memoryStream = new MemoryStream(data);
+
+            byte[] initializationVector = _iv;
+            if (initializationVector is null)
+            {
+                initializationVector = new byte[InitializationVectorSize];
                 memoryStream.Read(initializationVector, 0, initializationVector.Length);
-
-                using AesCryptoServiceProvider cryptoServiceProvider = CreateCryptographyProvider();
-                using ICryptoTransform cryptoTransform = cryptoServiceProvider.CreateDecryptor(_key, initializationVector);
-                using var crypto = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read);
-                using var reader = new StreamReader(crypto);
-
-                decrypted = reader.ReadToEnd().Trim('\0');
             }
 
-            return decrypted;
+            using var aes = CreateCryptographyProvider();
+            using var transform = aes.CreateDecryptor(_key, initializationVector);
+            using var crypto = new CryptoStream(memoryStream, transform, CryptoStreamMode.Read);
+            return converter(crypto);
         }
 
         /// <summary>
