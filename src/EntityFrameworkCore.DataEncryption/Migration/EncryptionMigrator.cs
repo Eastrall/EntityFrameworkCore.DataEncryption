@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Migration
             var set = context.Set(property.DeclaringEntityType);
             var list = await set.ToListAsync(cancellationToken);
 
-            logger?.LogInformation("Migrating data for {EntityType} :: {Property}} ({RecordCount} records)...",
+            logger?.LogInformation("Migrating data for {EntityType} :: {Property} ({RecordCount} records)...",
                 property.DeclaringEntityType.Name, property.Name, list.Count);
 
             foreach (var entity in list)
