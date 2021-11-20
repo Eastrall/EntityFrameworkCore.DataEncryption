@@ -7,7 +7,7 @@
 		<AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
 		<RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
     <IsPackable>true</IsPackable>
-		<Version>3.0.1-dev</Version>
+		<Version>3.0.1</Version>
 		<Authors>Filipe GOMES PEIXOTO</Authors>
 		<PackageId>EntityFrameworkCore.DataEncryption</PackageId>
 		<PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption</PackageProjectUrl>
@@ -20,8 +20,8 @@
 		<Copyright>Filipe GOMES PEIXOTO © 2019 - 2021</Copyright>
 		<Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageReleaseNotes>- Add support for storing data as binary or Base64
-- Add support for SecureString and binary model properties	</PackageReleaseNotes>
+		<PackageReleaseNotes>Add support for .NET 5 and .NET 6</PackageReleaseNotes>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
@@ -48,6 +48,10 @@
 		<None Include="..\..\LICENSE">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 		<None Include="Resources/icon.png" Pack="true" Visible="true" PackagePath="" />
 	</ItemGroup>
