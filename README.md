@@ -1,6 +1,6 @@
 # EntityFrameworkCore.DataEncryption
 
-[![Build Status](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_apis/build/status/EntityFrameworkCore.DataEncryption?branchName=master)](https://dev.azure.com/eastrall/EntityFrameworkCore.DataEncryption/_build/latest?definitionId=9&branchName=master)
+[![.NET](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/actions/workflows/build.yml/badge.svg)](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption/branch/master/graph/badge.svg)](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption)
 [![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
 
