@@ -1,0 +1,25 @@
+name: .NET
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-library:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build EntityFrameworkCore.DataEncryption.sln --configuration Release -f net6.0 --no-restore
+
+    - name: Run unit tests
+      run: dotnet test EntityFrameworkCore.DataEncryption.sln --configuration Release /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:CoverletOutputFormat=opencover /p:CoverletOutput="../TestResults/TestResults.xml" /maxcpucount:1 -f net6.0 --no-build --verbosity normal
