@@ -25,3 +25,9 @@ jobs:
 
     - name: Run unit tests
       run: dotnet test EntityFrameworkCore.DataEncryption.sln --configuration Release /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:CoverletOutputFormat=opencover /p:CoverletOutput="../TestResults/TestResults.xml" /maxcpucount:1 -f net6.0 --no-build --verbosity normal
+
+    - name: Upload code coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./test/TestResults/TestResults.xml
+        fail_ci_if_error: true
