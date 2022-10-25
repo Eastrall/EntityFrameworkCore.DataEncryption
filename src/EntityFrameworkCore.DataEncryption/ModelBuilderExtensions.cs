@@ -1,175 +1,114 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using System.Security;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Microsoft.EntityFrameworkCore.DataEncryption
+namespace Microsoft.EntityFrameworkCore.DataEncryption;
+
+/// <summary>
+/// Provides extensions for the <see cref="ModelBuilder"/>.
+/// </summary>
+public static class ModelBuilderExtensions
 {
     /// <summary>
-    /// Provides extensions for the <see cref="ModelBuilder"/>.
+    /// Enables encryption on this model using an encryption provider.
     /// </summary>
-    public static class ModelBuilderExtensions
+    /// <param name="modelBuilder">
+    /// The <see cref="ModelBuilder"/> instance.
+    /// </param>
+    /// <param name="encryptionProvider">
+    /// The <see cref="IEncryptionProvider"/> to use, if any.
+    /// </param>
+    /// <returns>
+    /// The updated <paramref name="modelBuilder"/>.
+    /// </returns>
+    public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
     {
-        /// <summary>
-        /// Enables encryption on this model using an encryption provider.
-        /// </summary>
-        /// <param name="modelBuilder">
-        /// The <see cref="ModelBuilder"/> instance.
-        /// </param>
-        /// <param name="encryptionProvider">
-        /// The <see cref="IEncryptionProvider"/> to use, if any.
-        /// </param>
-        /// <returns>
-        /// The updated <paramref name="modelBuilder"/>.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="modelBuilder"/> is <see langword="null"/>.
-        /// </exception>
-        public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
+        if (modelBuilder is null)
         {
-            if (modelBuilder is null)
-            {
-                throw new ArgumentNullException(nameof(modelBuilder));
-            }
+            throw new ArgumentNullException(nameof(modelBuilder));
+        }
 
-            ValueConverter binaryToBinary = null, binaryToString = null;
-            ValueConverter stringToBinary = null, stringToString = null;
-            ValueConverter secureStringToBinary = null, secureStringToString = null;
-            var secureStringProperties = new List<(Type entityType, string propertyName)>();
+        foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            IEnumerable<EncryptedProperty> encryptedProperties = GetEntityEncryptedProperties(entityType);
 
-            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+            foreach (EncryptedProperty encryptedProperty in encryptedProperties)
             {
-                foreach (IMutableProperty property in entityType.GetProperties())
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                if (encryptedProperty.Property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not null)
                 {
-                    var (shouldEncrypt, format) = property.ShouldEncrypt();
-                    if (!shouldEncrypt)
-                    {
-                        continue;
-                    }
-
-                    if (property.ClrType == typeof(byte[]))
-                    {
-                        switch (format)
-                        {
-                            case StorageFormat.Base64:
-                            {
-                                binaryToString ??= encryptionProvider.FromBinary().ToBase64().Build();
-                                property.SetValueConverter(binaryToString);
-                                break;
-                            }
-                            case StorageFormat.Binary:
-                            case StorageFormat.Default:
-                            {
-                                if (encryptionProvider is not null)
-                                {
-                                    binaryToBinary ??= encryptionProvider.FromBinary().ToBinary().Build();
-                                    property.SetValueConverter(binaryToBinary);
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                throw new NotSupportedException($"Storage format {format} is not supported.");
-                            }
-                        }
-                    }
-                    else if (property.ClrType == typeof(string))
-                    {
-                        switch (format)
-                        {
-                            case StorageFormat.Binary:
-                            {
-                                stringToBinary ??= encryptionProvider.FromString().ToBinary().Build();
-                                property.SetValueConverter(stringToBinary);
-                                break;
-                            }
-                            case StorageFormat.Base64:
-                            case StorageFormat.Default:
-                            {
-                                if (encryptionProvider is not null)
-                                {
-                                    stringToString ??= encryptionProvider.FromString().ToBase64().Build();
-                                    property.SetValueConverter(stringToString);
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                throw new NotSupportedException($"Storage format {format} is not supported.");
-                            }
-                        }
-                    }
-                    else if (property.ClrType == typeof(SecureString))
-                    {
-                        switch (format)
-                        {
-                            case StorageFormat.Base64:
-                            {
-                                secureStringToString ??= encryptionProvider.FromSecureString().ToBase64().Build();
-                                property.SetValueConverter(secureStringToString);
-                                break;
-                            }
-                            case StorageFormat.Binary:
-                            case StorageFormat.Default:
-                            {
-                                secureStringToBinary ??= encryptionProvider.FromSecureString().ToBinary().Build();
-                                property.SetValueConverter(secureStringToBinary);
-                                break;
-                            }
-                            default:
-                            {
-                                throw new NotSupportedException($"Storage format {format} is not supported.");
-                            }
-                        }
-                    }
+                    continue;
                 }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
-                // By default, SecureString properties are created as navigation properties, and need to be reconfigured:
-                foreach (var navigation in entityType.GetNavigations())
+                ValueConverter converter = GetValueConverter(encryptedProperty.Property.ClrType, encryptionProvider, encryptedProperty.StorageFormat);
+
+                if (converter != null)
                 {
-                    if (navigation.ClrType == typeof(SecureString))
-                    {
-                        secureStringProperties.Add((entityType.ClrType, navigation.Name));
-                    }
+                    encryptedProperty.Property.SetValueConverter(converter);
                 }
             }
+        }
 
-            if (secureStringProperties.Count != 0)
+        return modelBuilder;
+    }
+
+    private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
+    {
+        if (propertyType == typeof(string))
+        {
+            return storageFormat switch
             {
-                foreach (var (entityType, propertyName) in secureStringProperties)
-                {
-                    var property = modelBuilder.Entity(entityType).Property(propertyName);
-                    var attribute = property.Metadata.PropertyInfo?.GetCustomAttribute<EncryptedAttribute>(false);
-                    var format = attribute?.Format ?? StorageFormat.Default;
+                StorageFormat.Default or StorageFormat.Base64 => new EncryptionConverter<string, string>(encryptionProvider, storageFormat),
+                StorageFormat.Binary => new EncryptionConverter<string, byte[]>(encryptionProvider, storageFormat),
+                _ => throw new NotImplementedException()
+            };
+        }
+        else if (propertyType == typeof(byte[]))
+        {
+            return storageFormat switch
+            {
+                StorageFormat.Default or StorageFormat.Binary => new EncryptionConverter<byte[], byte[]>(encryptionProvider, storageFormat),
+                StorageFormat.Base64 => new EncryptionConverter<byte[], string>(encryptionProvider, storageFormat),
+                _ => throw new NotImplementedException()
+            };
+        }
+        else if (propertyType == typeof(SecureString))
+        {
+            // TODO
+        }
 
-                    switch (format)
-                    {
-                        case StorageFormat.Base64:
-                        {
-                            secureStringToString ??= encryptionProvider.FromSecureString().ToBase64().Build();
-                            property.HasConversion(secureStringToString);
-                            break;
-                        }
-                        case StorageFormat.Binary:
-                        case StorageFormat.Default:
-                        {
-                            secureStringToBinary ??= encryptionProvider.FromSecureString().ToBinary().Build();
-                            property.HasConversion(secureStringToBinary);
-                            break;
-                        }
-                        default:
-                        {
-                            throw new NotSupportedException($"Storage format {format} is not supported.");
-                        }
-                    }
-                }
-            }
+        return null;
+    }
 
-            return modelBuilder;
+    private static IEnumerable<EncryptedProperty> GetEntityEncryptedProperties(IMutableEntityType entity)
+    {
+        return entity.GetProperties()
+            .Select(p => new { Property = p, EncryptedAttribute = p.PropertyInfo?.GetCustomAttribute<EncryptedAttribute>(false) })
+            .Where(x => x.EncryptedAttribute != null)
+            .Select(x => new EncryptedProperty(entity, x.Property, x.EncryptedAttribute.Format));
+    }
+
+    internal struct EncryptedProperty
+    {
+        public IMutableEntityType EntityType { get; }
+
+        public IMutableProperty Property { get; }
+
+        public StorageFormat StorageFormat { get; }
+
+        public EncryptedProperty(IMutableEntityType entityType, IMutableProperty property, StorageFormat storageFormat)
+        {
+            EntityType = entityType;
+            Property = property;
+            StorageFormat = storageFormat;
         }
     }
 }

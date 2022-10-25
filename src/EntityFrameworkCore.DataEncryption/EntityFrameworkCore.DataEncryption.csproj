@@ -2,12 +2,12 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net5.0</TargetFrameworks>
-		<LangVersion>9.0</LangVersion>
+		<LangVersion>10.0</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<AssemblyName>EntityFrameworkCore.DataEncryption</AssemblyName>
 		<RootNamespace>Microsoft.EntityFrameworkCore.DataEncryption</RootNamespace>
-    <IsPackable>true</IsPackable>
-		<Version>3.0.1</Version>
+		<IsPackable>true</IsPackable>
+		<Version>4.0.0</Version>
 		<Authors>Filipe GOMES PEIXOTO</Authors>
 		<PackageId>EntityFrameworkCore.DataEncryption</PackageId>
 		<PackageProjectUrl>https://github.com/Eastrall/EntityFrameworkCore.DataEncryption</PackageProjectUrl>
@@ -17,7 +17,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PackageTags>entity-framework-core, extensions, dotnet-core, dotnet, encryption, fluent-api</PackageTags>
 		<PackageIcon>icon.png</PackageIcon>
-		<Copyright>Filipe GOMES PEIXOTO © 2019 - 2021</Copyright>
+		<Copyright>Filipe GOMES PEIXOTO © 2019 - 2022</Copyright>
 		<Description>A plugin for Microsoft.EntityFrameworkCore to add support of encrypted fields using built-in or custom encryption providers.</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>Add support for .NET 5 and .NET 6</PackageReleaseNotes>
@@ -25,7 +25,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-	  <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
 	</PropertyGroup>
 
 	<ItemGroup Condition="('$(TargetFramework)' == 'netstandard2.0')">
@@ -43,15 +43,15 @@
 	<ItemGroup Condition="('$(TargetFramework)' == 'net6.0')">
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[6,)" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<None Include="..\..\LICENSE">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="..\..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="Resources/icon.png" Pack="true" Visible="true" PackagePath="" />
 	</ItemGroup>
@@ -60,6 +60,10 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Microsoft.EntityFrameworkCore.Encryption.Test</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Migration\" />
 	</ItemGroup>
 
 </Project>

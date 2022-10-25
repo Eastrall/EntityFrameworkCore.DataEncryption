@@ -4,53 +4,54 @@ using System;
 using System.Linq;
 using System.Security;
 
-namespace AesSample
+namespace AesSample;
+
+static class Program
 {
-    static class Program
+    static void Main()
     {
-        static void Main()
+        var options = new DbContextOptionsBuilder<DatabaseContext>()
+            .UseInMemoryDatabase(databaseName: "MyInMemoryDatabase")
+            .Options;
+
+        // AES key randomly generated at each run.
+        AesKeyInfo keyInfo = AesProvider.GenerateKey(AesKeySize.AES256Bits);
+        byte[] encryptionKey = keyInfo.Key;
+        byte[] encryptionIV = keyInfo.IV;
+        var encryptionProvider = new AesProvider(encryptionKey, encryptionIV);
+
+        using var context = new DatabaseContext(options, encryptionProvider);
+
+        var user = new UserEntity
         {
-            var options = new DbContextOptionsBuilder<DatabaseContext>()
-                .UseInMemoryDatabase(databaseName: "MyInMemoryDatabase")
-                .Options;
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            //Password = BuildPassword(),
+        };
 
-            // AES key randomly generated at each run.
-            byte[] encryptionKey = AesProvider.GenerateKey(AesKeySize.AES256Bits).Key;
-            var encryptionProvider = new AesProvider(encryptionKey);
+        context.Users.Add(user);
+        context.SaveChanges();
 
-            using var context = new DatabaseContext(options, encryptionProvider);
+        Console.WriteLine($"Users count: {context.Users.Count()}");
 
-            var user = new UserEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                Password = BuildPassword(),
-            };
+        user = context.Users.First();
 
-            context.Users.Add(user);
-            context.SaveChanges();
+        Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email}");
+    }
 
-            Console.WriteLine($"Users count: {context.Users.Count()}");
-
-            user = context.Users.First();
-
-            Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email} ({user.Password.Length})");
-        }
-
-        static SecureString BuildPassword()
-        {
-            SecureString result = new();
-            result.AppendChar('L');
-            result.AppendChar('e');
-            result.AppendChar('t');
-            result.AppendChar('M');
-            result.AppendChar('e');
-            result.AppendChar('I');
-            result.AppendChar('n');
-            result.AppendChar('!');
-            result.MakeReadOnly();
-            return result;
-        }
+    static SecureString BuildPassword()
+    {
+        SecureString result = new();
+        result.AppendChar('L');
+        result.AppendChar('e');
+        result.AppendChar('t');
+        result.AppendChar('M');
+        result.AppendChar('e');
+        result.AppendChar('I');
+        result.AppendChar('n');
+        result.AppendChar('!');
+        result.MakeReadOnly();
+        return result;
     }
 }
