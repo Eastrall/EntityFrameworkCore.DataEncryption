@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
 using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -12,6 +13,26 @@ public class AesProviderTest
 {
     private readonly Faker _faker = new();
 
+    [Fact]
+    public void EncryptNullOrEmptyDataTest()
+    {
+        AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(AesKeySize.AES256Bits);
+        var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
+
+        Assert.Null(provider.Encrypt(null));
+        Assert.Null(provider.Encrypt(Array.Empty<byte>()));
+    }
+
+    [Fact]
+    public void DecryptNullOrEmptyDataTest()
+    {
+        AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(AesKeySize.AES256Bits);
+        var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
+
+        Assert.Null(provider.Decrypt(null));
+        Assert.Null(provider.Decrypt(Array.Empty<byte>()));
+    }
+
     [Theory]
     [InlineData(AesKeySize.AES128Bits)]
     [InlineData(AesKeySize.AES192Bits)]
@@ -21,6 +42,25 @@ public class AesProviderTest
         byte[] input = _faker.Random.Bytes(_faker.Random.Int(10, 30));
         AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
         var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
+
+        byte[] encryptedData = provider.Encrypt(input);
+        Assert.NotNull(encryptedData);
+
+        byte[] decryptedData = provider.Decrypt(encryptedData);
+        Assert.NotNull(decryptedData);
+
+        Assert.Equal(input, decryptedData);
+    }
+
+    [Theory]
+    [InlineData(AesKeySize.AES128Bits)]
+    [InlineData(AesKeySize.AES192Bits)]
+    [InlineData(AesKeySize.AES256Bits)]
+    public void EncryptDecryptByteArrayWithoutIVTest(AesKeySize keySize)
+    {
+        byte[] input = _faker.Random.Bytes(_faker.Random.Int(10, 30));
+        AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
+        var provider = new AesProvider(encryptionKeyInfo.Key, null);
 
         byte[] encryptedData = provider.Encrypt(input);
         Assert.NotNull(encryptedData);

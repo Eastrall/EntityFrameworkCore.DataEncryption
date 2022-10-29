@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Security;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
@@ -33,7 +32,6 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         {
             string => Encoding.UTF8.GetBytes(input.ToString()),
             byte[] => input as byte[],
-            SecureString => null,
             _ => null,
         };
 
@@ -68,10 +66,6 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         else if (destinationType == typeof(byte[]))
         {
             decryptedData = decryptedRawBytes;
-        }
-        else if (destinationType == typeof(SecureString))
-        {
-            // TODO
         }
 
         return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));

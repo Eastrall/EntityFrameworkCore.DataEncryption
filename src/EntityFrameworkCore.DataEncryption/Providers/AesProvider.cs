@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal.Extensions;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers;

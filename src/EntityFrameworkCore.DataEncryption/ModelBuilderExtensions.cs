@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Security;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption;
 
@@ -80,10 +79,6 @@ public static class ModelBuilderExtensions
                 _ => throw new NotImplementedException()
             };
         }
-        else if (propertyType == typeof(SecureString))
-        {
-            // TODO
-        }
 
         return null;
     }
@@ -93,20 +88,17 @@ public static class ModelBuilderExtensions
         return entity.GetProperties()
             .Select(p => new { Property = p, EncryptedAttribute = p.PropertyInfo?.GetCustomAttribute<EncryptedAttribute>(false) })
             .Where(x => x.EncryptedAttribute != null)
-            .Select(x => new EncryptedProperty(entity, x.Property, x.EncryptedAttribute.Format));
+            .Select(x => new EncryptedProperty(x.Property, x.EncryptedAttribute.Format));
     }
 
     internal struct EncryptedProperty
     {
-        public IMutableEntityType EntityType { get; }
-
         public IMutableProperty Property { get; }
 
         public StorageFormat StorageFormat { get; }
 
-        public EncryptedProperty(IMutableEntityType entityType, IMutableProperty property, StorageFormat storageFormat)
+        public EncryptedProperty(IMutableProperty property, StorageFormat storageFormat)
         {
-            EntityType = entityType;
             Property = property;
             StorageFormat = storageFormat;
         }
