@@ -138,7 +138,6 @@ public class AesProviderTest
         var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV, CipherMode.CBC, PaddingMode.Zeros);
         var author = new AuthorEntity("John", "Doe", 42)
         {
-            //Password = DataHelper.RandomSecureString(10),
             Books = new List<BookEntity>
             {
                 new("Lorem Ipsum", 300),

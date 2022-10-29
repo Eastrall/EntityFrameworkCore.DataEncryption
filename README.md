@@ -3,6 +3,7 @@
 [![.NET](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/actions/workflows/build.yml/badge.svg)](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption/branch/master/graph/badge.svg)](https://codecov.io/gh/Eastrall/EntityFrameworkCore.DataEncryption)
 [![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.DataEncryption.svg)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
+[![Nuget Downloads](https://img.shields.io/nuget/dt/EntityFrameworkCore.DataEncryption)](https://www.nuget.org/packages/EntityFrameworkCore.DataEncryption)
 
 `EntityFrameworkCore.DataEncryption` is a [Microsoft Entity Framework Core](https://github.com/aspnet/EntityFrameworkCore) extension to add support of encrypted fields using built-in or custom encryption providers.
 
@@ -21,13 +22,13 @@ PM> Install-Package EntityFrameworkCore.DataEncryption
 
 ## How to use
 
-To use `EntityFrameworkCore.DataEncryption`, you will need to decorate your `string` properties of your entities with the `[Encrypted]` attribute and enable the encryption on the `ModelBuilder`. 
+To use `EntityFrameworkCore.DataEncryption`, you will need to decorate your `string` or `byte[]` properties of your entities with the `[Encrypted]` attribute and enable the encryption on the `ModelBuilder`. 
 
 To enable the encryption correctly, you will need to use an **encryption provider**, there is a list of the available providers:
 
 | Name | Class | Extra |
 |------|-------|-------|
-| [AES](https://docs.microsoft.com/en-US/dotnet/api/system.security.cryptography.aes?view=netcore-2.2) | [AesProvider](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/master/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs) | Can use a 128bits, 192bits or 256bits key |
+| [AES](https://learn.microsoft.com/en-US/dotnet/api/system.security.cryptography.aes?view=net-6.0) | [AesProvider](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/main/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs) | Can use a 128bits, 192bits or 256bits key |
 
 ### Example with `AesProvider`
 
@@ -71,21 +72,19 @@ The code bellow creates a new `AesEncryption` provider and gives it to the curre
 
 ## Create an encryption provider
 
-> :warning: This section is outdated and doesn't work for V3.0.0 and will be updated soon.
-
 `EntityFrameworkCore.DataEncryption` gives the possibility to create your own encryption providers. To do so, create a new class and make it inherit from `IEncryptionProvider`. You will need to implement the `Encrypt(string)` and `Decrypt(string)` methods.
 
 ```csharp
 public class MyCustomEncryptionProvider : IEncryptionProvider
 {
-	public string Encrypt(string dataToEncrypt)
+	public byte[] Encrypt(byte[] input)
 	{
-		// Encrypt data and return as Base64 string
+		// Encrypt the given input and return the encrypted data as a byte[].
 	}
 	
-	public string Decrypt(string dataToDecrypt)
+	public byte[] Decrypt(byte[] input)
 	{
-		// Decrypt a Base64 string to plain string
+		// Decrypt the given input and return the decrypted data as a byte[].
 	}
 }
 ```

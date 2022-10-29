@@ -65,8 +65,8 @@ public static class ModelBuilderExtensions
         {
             return storageFormat switch
             {
-                StorageFormat.Default or StorageFormat.Base64 => new EncryptionConverter<string, string>(encryptionProvider, storageFormat),
-                StorageFormat.Binary => new EncryptionConverter<string, byte[]>(encryptionProvider, storageFormat),
+                StorageFormat.Default or StorageFormat.Base64 => new EncryptionConverter<string, string>(encryptionProvider, StorageFormat.Base64),
+                StorageFormat.Binary => new EncryptionConverter<string, byte[]>(encryptionProvider, StorageFormat.Binary),
                 _ => throw new NotImplementedException()
             };
         }
@@ -74,13 +74,13 @@ public static class ModelBuilderExtensions
         {
             return storageFormat switch
             {
-                StorageFormat.Default or StorageFormat.Binary => new EncryptionConverter<byte[], byte[]>(encryptionProvider, storageFormat),
-                StorageFormat.Base64 => new EncryptionConverter<byte[], string>(encryptionProvider, storageFormat),
+                StorageFormat.Default or StorageFormat.Binary => new EncryptionConverter<byte[], byte[]>(encryptionProvider, StorageFormat.Binary),
+                StorageFormat.Base64 => new EncryptionConverter<byte[], string>(encryptionProvider, StorageFormat.Base64),
                 _ => throw new NotImplementedException()
             };
         }
 
-        return null;
+        throw new NotImplementedException($"Type {propertyType.Name} does not support encryption.");
     }
 
     private static IEnumerable<EncryptedProperty> GetEntityEncryptedProperties(IMutableEntityType entity)

@@ -27,7 +27,8 @@ static class Program
             FirstName = "John",
             LastName = "Doe",
             Email = "john@doe.com",
-            //Password = BuildPassword(),
+            EncryptedData = new byte[2] { 1, 2 },
+            EncryptedDataAsString = new byte[2] { 3, 4 }
         };
 
         context.Users.Add(user);
@@ -38,20 +39,5 @@ static class Program
         user = context.Users.First();
 
         Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email}");
-    }
-
-    static SecureString BuildPassword()
-    {
-        SecureString result = new();
-        result.AppendChar('L');
-        result.AppendChar('e');
-        result.AppendChar('t');
-        result.AppendChar('M');
-        result.AppendChar('e');
-        result.AppendChar('I');
-        result.AppendChar('n');
-        result.AppendChar('!');
-        result.MakeReadOnly();
-        return result;
     }
 }

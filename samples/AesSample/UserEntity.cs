@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security;
 
 namespace AesSample;
 
@@ -21,5 +20,12 @@ public class UserEntity
     [Encrypted]
     public string Email { get; set; }
 
-    //public SecureString Password { get; set; }
+    [Required]
+    [Encrypted]
+    public byte[] EncryptedData { get; set; }
+
+    [Required]
+    [Encrypted(StorageFormat.Base64)]
+    [Column(TypeName = "VARCHAR(MAX)")]
+    public byte[] EncryptedDataAsString { get; set; }
 }

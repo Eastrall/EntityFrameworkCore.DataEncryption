@@ -25,6 +25,10 @@ public sealed class BookEntity
     [ForeignKey(nameof(AuthorId))]
     public AuthorEntity Author { get; set; }
 
+    [Encrypted(StorageFormat.Base64)]
+    [Column(TypeName = "TEXT")]
+    public byte[] Content { get; set; }
+
     public BookEntity(string name, int numberOfPages)
     {
         Name = name;
