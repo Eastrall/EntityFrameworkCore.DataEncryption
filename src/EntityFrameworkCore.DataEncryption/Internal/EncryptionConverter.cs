@@ -10,20 +10,20 @@ namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 /// </summary>
 /// <typeparam name="TModel"></typeparam>
 /// <typeparam name="TProvider"></typeparam>
-internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>, IEncryptionValueConverter
+internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
 {
-    public IEncryptionProvider EncryptionProvider { get; }
-
     /// <summary>
     /// Creates a new <see cref="EncryptionConverter{TModel,TProvider}"/> instance.
     /// </summary>
+    /// <param name="encryptionProvider">Encryption provider to use.</param>
+    /// <param name="storageFormat">Encryption storage format.</param>
+    /// <param name="mappingHints">Mapping hints.</param>
     public EncryptionConverter(IEncryptionProvider encryptionProvider, StorageFormat storageFormat, ConverterMappingHints mappingHints = null)
         : base(
             x => Encrypt<TModel, TProvider>(x, encryptionProvider, storageFormat),
             x => Decrypt<TModel, TProvider>(x, encryptionProvider, storageFormat), 
             mappingHints)
     {
-        EncryptionProvider = encryptionProvider;
     }
 
     private static TOutput Encrypt<TInput, TOutput>(TInput input, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
