@@ -1,14 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
-namespace AesSample;
+namespace AesSample.Fluent;
 
-static class Program
+internal class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
         using SqliteConnection connection = new("DataSource=:memory:");
         connection.Open();

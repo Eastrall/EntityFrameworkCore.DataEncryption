@@ -106,15 +106,6 @@ public class AesProviderTest
     }
 
     [Fact]
-    public void CreateDataContextWithoutProvider()
-    {
-        using var contextFactory = new DatabaseContextFactory();
-        using var context = contextFactory.CreateContext<SimpleEncryptedDatabaseContext>();
-
-        Assert.NotNull(context);
-    }
-
-    [Fact]
     public void EncryptUsingAes128Provider()
     {
         ExecuteAesEncryptionTest<Aes128EncryptedDatabaseContext>(AesKeySize.AES128Bits);

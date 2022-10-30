@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -32,6 +33,11 @@ public static class ModelBuilderExtensions
         if (modelBuilder is null)
         {
             throw new ArgumentNullException(nameof(modelBuilder));
+        }
+
+        if (encryptionProvider is null)
+        {
+            throw new ArgumentNullException(nameof(encryptionProvider));
         }
 
         foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
@@ -86,21 +92,41 @@ public static class ModelBuilderExtensions
     private static IEnumerable<EncryptedProperty> GetEntityEncryptedProperties(IMutableEntityType entity)
     {
         return entity.GetProperties()
-            .Select(p => new { Property = p, EncryptedAttribute = p.PropertyInfo?.GetCustomAttribute<EncryptedAttribute>(false) })
-            .Where(x => x.EncryptedAttribute != null)
-            .Select(x => new EncryptedProperty(x.Property, x.EncryptedAttribute.Format));
+            .Select(x => EncryptedProperty.Create(x))
+            .Where(x => x is not null);
     }
 
-    internal struct EncryptedProperty
+    internal class EncryptedProperty
     {
         public IMutableProperty Property { get; }
 
         public StorageFormat StorageFormat { get; }
 
-        public EncryptedProperty(IMutableProperty property, StorageFormat storageFormat)
+        private EncryptedProperty(IMutableProperty property, StorageFormat storageFormat)
         {
             Property = property;
             StorageFormat = storageFormat;
+        }
+
+        public static EncryptedProperty Create(IMutableProperty property)
+        {
+            StorageFormat? storageFormat = null;
+
+            var encryptedAttribute = property.PropertyInfo?.GetCustomAttribute<EncryptedAttribute>(false);
+
+            if (encryptedAttribute != null)
+            {
+                storageFormat = encryptedAttribute.Format;
+            }
+
+            IAnnotation encryptedAnnotation = property.FindAnnotation(PropertyAnnotations.IsEncrypted);
+
+            if (encryptedAnnotation != null && (bool)encryptedAnnotation.Value == true)
+            {
+                storageFormat = (StorageFormat)property.FindAnnotation(PropertyAnnotations.StorageFormat)?.Value;
+            }
+
+            return storageFormat.HasValue ? new EncryptedProperty(property, storageFormat.Value) : null;
         }
     }
 }

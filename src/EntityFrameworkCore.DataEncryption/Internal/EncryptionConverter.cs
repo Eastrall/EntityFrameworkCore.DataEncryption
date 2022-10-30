@@ -54,9 +54,7 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
             StorageFormat.Default or StorageFormat.Base64 => Convert.FromBase64String(input.ToString()),
             _ => input as byte[]
         };
-
         byte[] decryptedRawBytes = encryptionProvider.Decrypt(inputData);
-
         object decryptedData = null;
 
         if (destinationType == typeof(string))

@@ -26,6 +26,6 @@ public class UserEntity
 
     [Required]
     [Encrypted(StorageFormat.Base64)]
-    [Column(TypeName = "VARCHAR(MAX)")]
+    [Column(TypeName = "TEXT")]
     public byte[] EncryptedDataAsString { get; set; }
 }
