@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.DataEncryption;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 
 namespace AesSample.Fluent;
@@ -18,7 +19,7 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var userEntityBuilder = modelBuilder.Entity<UserEntity>();
+        EntityTypeBuilder<UserEntity> userEntityBuilder = modelBuilder.Entity<UserEntity>();
 
         userEntityBuilder.HasKey(x => x.Id);
         userEntityBuilder.Property(x => x.Id).IsRequired().ValueGeneratedOnAdd();

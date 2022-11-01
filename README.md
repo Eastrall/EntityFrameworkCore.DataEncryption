@@ -20,17 +20,29 @@ Install the package from [NuGet](https://www.nuget.org/) or from the `Package Ma
 PM> Install-Package EntityFrameworkCore.DataEncryption
 ```
 
-## How to use
+## Supported types
 
-To use `EntityFrameworkCore.DataEncryption`, you will need to decorate your `string` or `byte[]` properties of your entities with the `[Encrypted]` attribute and enable the encryption on the `ModelBuilder`. 
+| Type | Default storage type |
+|------|----------------------|
+| `string` | Base64 string |
+| `byte[]` | BINARY |
 
-To enable the encryption correctly, you will need to use an **encryption provider**, there is a list of the available providers:
+## Built-in providers
 
 | Name | Class | Extra |
 |------|-------|-------|
 | [AES](https://learn.microsoft.com/en-US/dotnet/api/system.security.cryptography.aes?view=net-6.0) | [AesProvider](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/main/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs) | Can use a 128bits, 192bits or 256bits key |
 
-### Example with `AesProvider`
+## How to use
+
+`EntityFrameworkCore.DataEncryption` supports 2 differents initialization methods:
+* Attribute
+* Fluent configuration
+
+Depending on the initialization method you will use, you will need to decorate your `string` or `byte[]` properties of your entities with the `[Encrypted]` attribute or use the fluent `IsEncrypted()` method in your model configuration process.
+To use an encryption provider on your EF Core model, and enable the encryption on the `ModelBuilder`. 
+
+### Example with `AesProvider` and attribute
 
 ```csharp
 public class UserEntity
@@ -59,16 +71,55 @@ public class DatabaseContext : DbContext
 	public DatabaseContext(DbContextOptions options)
 		: base(options)
 	{
-		this._provider = new AesProvider(this._encryptionKey, this._encryptionIV);
+		_provider = new AesProvider(this._encryptionKey, this._encryptionIV);
 	}
 	
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.UseEncryption(this._provider);
+		modelBuilder.UseEncryption(_provider);
 	}
 }
 ```
-The code bellow creates a new `AesEncryption` provider and gives it to the current model. It will encrypt every `string` fields of your model that has the `[Encrypted]` attribute when saving changes to database. As for the decrypt process, it will be done when reading the `DbSet<T>` of your `DbContext`.
+The code bellow creates a new [`AesProvider`](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/main/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs) and gives it to the current model. It will encrypt every `string` fields of your model that has the `[Encrypted]` attribute when saving changes to database. As for the decrypt process, it will be done when reading the `DbSet<T>` of your `DbContext`.
+
+### Example with `AesProvider` and fluent configuration
+
+```csharp
+public class UserEntity
+{
+	public int Id { get; set; }
+	public string Username { get; set; }
+	public string Password { get; set; }
+	public int Age { get; set; }
+}
+
+public class DatabaseContext : DbContext
+{
+	// Get key and IV from a Base64String or any other ways.
+	// You can generate a key and IV using "AesProvider.GenerateKey()"
+	private readonly byte[] _encryptionKey = ...; 
+	private readonly byte[] _encryptionIV = ...;
+	private readonly IEncryptionProvider _provider;
+
+	public DbSet<UserEntity> Users { get; set; }
+	
+	public DatabaseContext(DbContextOptions options)
+		: base(options)
+	{
+		_provider = new AesProvider(this._encryptionKey, this._encryptionIV);
+	}
+	
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		var userEntityBuilder = modelBuilder.Entity<UserEntity>();
+		
+		userEntityBuilder.Property(x => x.Username).IsRequired().IsEncrypted();
+		userEntityBuilder.Property(x => x.Password).IsRequired().IsEncrypted();
+
+		modelBuilder.UseEncryption(_provider);
+	}
+}
+```
 
 ## Create an encryption provider
 
@@ -98,12 +149,12 @@ public class DatabaseContext : DbContext
 	public DatabaseContext(DbContextOptions options)
 		: base(options)
 	{
-		this._provider = new MyCustomEncryptionProvider();
+		_provider = new MyCustomEncryptionProvider();
 	}
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.UseEncryption(this._provider);
+		modelBuilder.UseEncryption(_provider);
 	}
 }
 ```
