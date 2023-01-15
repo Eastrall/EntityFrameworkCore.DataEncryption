@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Providers;
@@ -19,9 +20,9 @@ public class AesProvider : IEncryptionProvider
     public const int InitializationVectorSize = 16;
 
     private readonly byte[] _key;
+    private readonly byte[] _iv;
     private readonly CipherMode _mode;
     private readonly PaddingMode _padding;
-    private readonly byte[] _iv;
 
     /// <summary>
     /// Creates a new <see cref="AesProvider"/> instance used to perform symmetric encryption and decryption on strings.
@@ -32,8 +33,8 @@ public class AesProvider : IEncryptionProvider
     /// <param name="padding">Padding mode used in the symmetric encryption.</param>
     public AesProvider(byte[] key, byte[] initializationVector, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
     {
-        _key = key;
-        _iv = initializationVector;
+        _key = key ?? throw new ArgumentNullException(nameof(key), "");
+        _iv = initializationVector ?? throw new ArgumentNullException(nameof(initializationVector), "");
         _mode = mode;
         _padding = padding;
     }
@@ -46,25 +47,16 @@ public class AesProvider : IEncryptionProvider
             return null;
         }
 
-        using var aes = CreateCryptographyProvider(_key, _mode, _padding);
-        using var memoryStream = new MemoryStream();
+        using Aes aes = CreateCryptographyProvider(_key, _iv, _mode, _padding);
+        using ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
+        using MemoryStream memoryStream = new();
+        using CryptoStream cryptoStream = new(memoryStream, transform, CryptoStreamMode.Write);
 
-        byte[] initializationVector = _iv;
-        if (initializationVector is null)
-        {
-            aes.GenerateIV();
-            initializationVector = aes.IV;
-            memoryStream.Write(initializationVector, 0, initializationVector.Length);
-        }
+        cryptoStream.Write(input, 0, input.Length);
+        cryptoStream.FlushFinalBlock();
+        memoryStream.Seek(0L, SeekOrigin.Begin);
 
-        using var transform = aes.CreateEncryptor(_key, initializationVector);
-        using var crypto = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write);
-        crypto.Write(input, 0, input.Length);
-        crypto.FlushFinalBlock();
-
-        memoryStream.Seek(0, SeekOrigin.Begin);
-
-        return memoryStream.ToArray();
+        return StreamToBytes(memoryStream);
     }
 
     /// <inheritdoc />
@@ -75,39 +67,46 @@ public class AesProvider : IEncryptionProvider
             return null;
         }
 
-        using var memoryStream = new MemoryStream(input);
+        using Aes aes = CreateCryptographyProvider(_key, _iv, _mode, _padding);
+        using ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
+        using MemoryStream memoryStream = new(input);
+        using CryptoStream cryptoStream = new(memoryStream, transform, CryptoStreamMode.Read);
 
-        byte[] initializationVector = _iv;
-        if (initializationVector is null)
+        return StreamToBytes(cryptoStream);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="Stream"/> into a byte array.
+    /// </summary>
+    /// <param name="stream">Stream.</param>
+    /// <returns>The stream's content as a byte array.</returns>
+    internal static byte[] StreamToBytes(Stream stream)
+    {
+        if (stream is MemoryStream ms)
         {
-            initializationVector = new byte[InitializationVectorSize];
-            memoryStream.Read(initializationVector, 0, initializationVector.Length);
+            return ms.ToArray();
         }
 
-        using var aes = CreateCryptographyProvider(_key, _mode, _padding);
-        using var transform = aes.CreateDecryptor(_key, initializationVector);
-
-        using var outputStream = new MemoryStream();
-        using var crypto = new CryptoStream(memoryStream, transform, CryptoStreamMode.Read);
-
-        crypto.CopyTo(outputStream);
-
-        return outputStream.ToArray();
+        using var output = new MemoryStream();
+        stream.CopyTo(output);
+        return output.ToArray();
     }
 
     /// <summary>
     /// Generates an AES cryptography provider.
     /// </summary>
     /// <returns></returns>
-    private static Aes CreateCryptographyProvider(byte[] key, CipherMode mode, PaddingMode padding)
+    private static Aes CreateCryptographyProvider(byte[] key, byte[] iv, CipherMode mode, PaddingMode padding)
     {
         var aes = Aes.Create();
 
-        aes.BlockSize = AesBlockSize;
         aes.Mode = mode;
+        aes.KeySize = key.Length * 8;
+        aes.BlockSize = AesBlockSize;
+        aes.FeedbackSize = AesBlockSize;
         aes.Padding = padding;
         aes.Key = key;
-        aes.KeySize = key.Length * 8;
+        aes.IV = iv;
 
         return aes;
     }

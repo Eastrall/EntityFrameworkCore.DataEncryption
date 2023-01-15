@@ -11,7 +11,7 @@
 
 This library has been developed initialy for a personal project of mine. It provides a simple way to encrypt column data.
 
-I **do not** take responsability if you use this in a production environment and loose your encryption key.
+I **do not** take responsability if you use this in a production environment and loose your encryption key or corrupt your data.
 
 ## How to install
 

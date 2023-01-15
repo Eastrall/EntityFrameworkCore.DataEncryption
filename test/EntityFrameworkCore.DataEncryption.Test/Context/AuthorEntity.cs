@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
 
@@ -19,13 +18,12 @@ public sealed class AuthorEntity
     public string FirstName { get; set; }
 
     [Required]
-    [Encrypted]
+    [Encrypted(StorageFormat.Binary)]
+    [Column(TypeName = "BLOB")]
     public string LastName { get; set; }
 
     [Required]
     public int Age { get; set; }
-
-    //public SecureString Password { get; set; }
 
     public IList<BookEntity> Books { get; set; }
 

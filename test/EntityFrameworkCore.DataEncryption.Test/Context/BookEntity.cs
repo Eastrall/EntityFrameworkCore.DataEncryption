@@ -29,10 +29,16 @@ public sealed class BookEntity
     [Column(TypeName = "TEXT")]
     public byte[] Content { get; set; }
 
-    public BookEntity(string name, int numberOfPages)
+    [Encrypted]
+    [Column(TypeName = "BLOB")]
+    public byte[] Summary { get; set; }
+
+    public BookEntity(string name, int numberOfPages, byte[] content, byte[] summary)
     {
         Name = name;
         NumberOfPages = numberOfPages;
         UniqueId = Guid.NewGuid();
+        Content = content;
+        Summary = summary;
     }
 }

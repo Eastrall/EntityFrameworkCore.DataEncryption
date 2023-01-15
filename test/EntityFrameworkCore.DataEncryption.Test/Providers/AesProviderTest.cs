@@ -4,14 +4,25 @@ using Microsoft.EntityFrameworkCore.DataEncryption.Test.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Test.Providers;
 
 public class AesProviderTest
 {
-    private readonly Faker _faker = new();
+    private static readonly Faker _faker = new();
+
+    [Fact]
+    public void CreateAesProviderWithoutKeyTest()
+    {
+        Assert.Throws<ArgumentNullException>(() => new AesProvider(null, null));
+    }
+
+    [Fact]
+    public void CreateAesProviderWithoutInitializationVectorTest()
+    {
+        Assert.Throws<ArgumentNullException>(() => new AesProvider(Array.Empty<byte>(), null));
+    }
 
     [Fact]
     public void EncryptNullOrEmptyDataTest()
@@ -39,28 +50,9 @@ public class AesProviderTest
     [InlineData(AesKeySize.AES256Bits)]
     public void EncryptDecryptByteArrayTest(AesKeySize keySize)
     {
-        byte[] input = _faker.Random.Bytes(_faker.Random.Int(10, 30));
+        byte[] input = _faker.Random.Bytes(5);
         AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
         var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
-
-        byte[] encryptedData = provider.Encrypt(input);
-        Assert.NotNull(encryptedData);
-
-        byte[] decryptedData = provider.Decrypt(encryptedData);
-        Assert.NotNull(decryptedData);
-
-        Assert.Equal(input, decryptedData);
-    }
-
-    [Theory]
-    [InlineData(AesKeySize.AES128Bits)]
-    [InlineData(AesKeySize.AES192Bits)]
-    [InlineData(AesKeySize.AES256Bits)]
-    public void EncryptDecryptByteArrayWithoutIVTest(AesKeySize keySize)
-    {
-        byte[] input = _faker.Random.Bytes(_faker.Random.Int(10, 30));
-        AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
-        var provider = new AesProvider(encryptionKeyInfo.Key, null);
 
         byte[] encryptedData = provider.Encrypt(input);
         Assert.NotNull(encryptedData);
@@ -126,13 +118,19 @@ public class AesProviderTest
     private static void ExecuteAesEncryptionTest<TContext>(AesKeySize aesKeyType) where TContext : DatabaseContext
     {
         AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(aesKeyType);
-        var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV, CipherMode.CBC, PaddingMode.Zeros);
+        var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
         var author = new AuthorEntity("John", "Doe", 42)
         {
             Books = new List<BookEntity>
             {
-                new("Lorem Ipsum", 300),
-                new("Dolor sit amet", 390)
+                new(name: _faker.Lorem.Sentence(2),
+                    numberOfPages: _faker.Random.Int(100, 300),
+                    content: _faker.Random.Bytes(_faker.Random.Int(5, 10)), 
+                    summary: _faker.Random.Bytes(_faker.Random.Int(5, 10))),
+                new(name: _faker.Lorem.Sentence(2),
+                    numberOfPages: _faker.Random.Int(100, 300),
+                    content: _faker.Random.Bytes(_faker.Random.Int(5, 10)),
+                    summary: _faker.Random.Bytes(_faker.Random.Int(5, 10))),
             }
         };
 
@@ -148,7 +146,7 @@ public class AesProviderTest
         // Read decrypted data and compare with original data
         using (var dbContext = contextFactory.CreateContext<TContext>(provider))
         {
-            var authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
+            AuthorEntity authorFromDb = dbContext.Authors.Include(x => x.Books).FirstOrDefault();
 
             Assert.NotNull(authorFromDb);
             Assert.Equal(author.FirstName, authorFromDb.FirstName);
@@ -156,8 +154,16 @@ public class AesProviderTest
             Assert.NotNull(authorFromDb.Books);
             Assert.NotEmpty(authorFromDb.Books);
             Assert.Equal(2, authorFromDb.Books.Count);
-            Assert.Equal(author.Books.First().Name, authorFromDb.Books.First().Name);
-            Assert.Equal(author.Books.Last().Name, authorFromDb.Books.Last().Name);
+
+            foreach (var book in authorFromDb.Books)
+            {
+                BookEntity originalBook = author.Books.FirstOrDefault(x => x.Id == book.Id);
+
+                Assert.NotNull(originalBook);
+                Assert.Equal(originalBook.Name, book.Name);
+                Assert.Equal(originalBook.Content, book.Content);
+                Assert.Equal(originalBook.Summary, book.Summary);
+            }
         }
     }
 
