@@ -9,6 +9,8 @@
 
 ## Disclaimer
 
+<h4 align="center">:warning: This project is **not** affiliated with Microsoft. :warning:</h4><br>
+
 This library has been developed initialy for a personal project of mine which suits my use case. It provides a simple way to encrypt column data.
 
 I **do not** take responsability if you use/deploy this in a production environment and loose your encryption key or corrupt your data.

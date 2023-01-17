@@ -50,7 +50,7 @@ public class AesProviderTest
     [InlineData(AesKeySize.AES256Bits)]
     public void EncryptDecryptByteArrayTest(AesKeySize keySize)
     {
-        byte[] input = _faker.Random.Bytes(5);
+        byte[] input = _faker.Random.Bytes(_faker.Random.Int(10, 30));
         AesKeyInfo encryptionKeyInfo = AesProvider.GenerateKey(keySize);
         var provider = new AesProvider(encryptionKeyInfo.Key, encryptionKeyInfo.IV);
 
