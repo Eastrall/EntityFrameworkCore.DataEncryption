@@ -9,9 +9,9 @@
 
 ## Disclaimer
 
-This library has been developed initialy for a personal project of mine. It provides a simple way to encrypt column data.
+This library has been developed initialy for a personal project of mine which suits my use case. It provides a simple way to encrypt column data.
 
-I **do not** take responsability if you use this in a production environment and loose your encryption key or corrupt your data.
+I **do not** take responsability if you use/deploy this in a production environment and loose your encryption key or corrupt your data.
 
 ## How to install
 
@@ -111,6 +111,7 @@ public class DatabaseContext : DbContext
 	
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		// Entities builder *MUST* be called before UseEncryption().
 		var userEntityBuilder = modelBuilder.Entity<UserEntity>();
 		
 		userEntityBuilder.Property(x => x.Username).IsRequired().IsEncrypted();
