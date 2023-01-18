@@ -1,14 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
-namespace AesSample;
+namespace AesSample.Fluent;
 
-static class Program
+internal class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
         using SqliteConnection connection = new("DataSource=:memory:");
         connection.Open();
@@ -41,6 +41,13 @@ static class Program
             context.SaveChanges();
 
             Console.WriteLine($"Users count: {context.Users.Count()}");
+        }
+
+        using (var context = new EncryptedDatabaseContext(options))
+        {
+            UserEntity user = context.Users.First();
+
+            Console.WriteLine($"Encrypted User: {user.FirstName} {user.LastName} - {user.Email} (Notes: {user.Notes})");
         }
 
         using (var context = new DatabaseContext(options, encryptionProvider))

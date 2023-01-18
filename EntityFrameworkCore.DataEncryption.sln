@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3EC10767-1816-46B2-A78E-9856071CCFDB}"
 EndProject
@@ -22,16 +22,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{64C3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AesSample", "samples\AesSample\AesSample.csproj", "{8AA1E576-4016-4623-96C8-90330F05F9A8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".azure", ".azure", "{073FEA06-67CF-47F8-8CE4-2B153A7D8443}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{EEF46CDC-C438-48FC-BEF7-83AEE26C63F7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{68558245-F605-413F-A1D9-A4F60D489D68}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{4F549FEF-C57B-4A34-A2C7-8A632762DF85}"
 	ProjectSection(SolutionItems) = preProject
-		.azure\pipelines\azure-pipelines.yml = .azure\pipelines\azure-pipelines.yml
+		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5EE4E8BE-6B15-49DB-A4A8-D2CD63D5E90C}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AesSample.Fluent", "samples\AesSample.Fluent\AesSample.Fluent.csproj", "{CF04DE64-713F-4ED3-9C14-B7C11D22454C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +49,10 @@ Global
 		{8AA1E576-4016-4623-96C8-90330F05F9A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AA1E576-4016-4623-96C8-90330F05F9A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AA1E576-4016-4623-96C8-90330F05F9A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF04DE64-713F-4ED3-9C14-B7C11D22454C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF04DE64-713F-4ED3-9C14-B7C11D22454C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF04DE64-713F-4ED3-9C14-B7C11D22454C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF04DE64-713F-4ED3-9C14-B7C11D22454C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,8 +61,9 @@ Global
 		{D037F8D0-E606-4C5A-8669-DB6AAE7B056B} = {3EC10767-1816-46B2-A78E-9856071CCFDB}
 		{5E023B6A-0B47-4EC2-90B9-2DF998E58ADB} = {E4089551-AF4E-41B3-A6F8-2501A3BE0E0C}
 		{8AA1E576-4016-4623-96C8-90330F05F9A8} = {64C3D7D1-67B8-4070-AE67-C71B761535CC}
-		{073FEA06-67CF-47F8-8CE4-2B153A7D8443} = {3A8D800E-77BD-44EF-82DB-C672281ECAAA}
-		{68558245-F605-413F-A1D9-A4F60D489D68} = {073FEA06-67CF-47F8-8CE4-2B153A7D8443}
+		{EEF46CDC-C438-48FC-BEF7-83AEE26C63F7} = {3A8D800E-77BD-44EF-82DB-C672281ECAAA}
+		{4F549FEF-C57B-4A34-A2C7-8A632762DF85} = {EEF46CDC-C438-48FC-BEF7-83AEE26C63F7}
+		{CF04DE64-713F-4ED3-9C14-B7C11D22454C} = {64C3D7D1-67B8-4070-AE67-C71B761535CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4997BAE9-29BF-4D79-AE5E-5605E7A0F049}

@@ -1,43 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<TargetFramework>net6.0</TargetFramework>
-	<IsPackable>false</IsPackable>
-	<AssemblyName>Microsoft.EntityFrameworkCore.Encryption.Test</AssemblyName>
-	<RootNamespace>Microsoft.EntityFrameworkCore.Encryption.Test</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>10</LangVersion>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>Microsoft.EntityFrameworkCore.Encryption.Test</AssemblyName>
+		<RootNamespace>Microsoft.EntityFrameworkCore.Encryption.Test</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-	<PackageReference Include="Bogus" Version="32.0.2" />
-	<PackageReference Include="coverlet.msbuild" Version="2.9.0">
-	  <PrivateAssets>all</PrivateAssets>
-	  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-	</PackageReference>
-
-	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-	<PackageReference Include="xunit" Version="2.4.1" />
-	<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-	  <PrivateAssets>all</PrivateAssets>
-	  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-	</PackageReference>
-	<DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-	<ProjectReference Include="..\..\src\EntityFrameworkCore.DataEncryption\EntityFrameworkCore.DataEncryption.csproj" />
-  </ItemGroup>
-	
-	<ItemGroup Condition="('$(TargetFramework)' == 'netcoreapp3.1')">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[3.1,6)" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="[3.1,6)" />
-	</ItemGroup>
-	<ItemGroup Condition="('$(TargetFramework)' == 'net5.0')">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[5,)" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="[5,)" />
-	</ItemGroup>
-	<ItemGroup Condition="('$(TargetFramework)' == 'net6.0')">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[6,)" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="[6,)" />
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\EntityFrameworkCore.DataEncryption\EntityFrameworkCore.DataEncryption.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Bogus" Version="34.0.2" />
+		<PackageReference Include="coverlet.collector" Version="3.2.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.11" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+		<PackageReference Include="xunit" Version="2.4.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+	</ItemGroup>
 </Project>
