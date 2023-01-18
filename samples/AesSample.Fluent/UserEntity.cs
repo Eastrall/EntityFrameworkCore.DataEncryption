@@ -12,6 +12,8 @@ public class UserEntity
 
     public string Email { get; set; }
 
+    public string Notes { get; set; }
+
     public byte[] EncryptedData { get; set; }
     
     public byte[] EncryptedDataAsString { get; set; }

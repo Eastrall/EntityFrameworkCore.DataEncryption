@@ -23,25 +23,31 @@ static class Program
         byte[] encryptionIV = keyInfo.IV;
         var encryptionProvider = new AesProvider(encryptionKey, encryptionIV);
 
-        using var context = new DatabaseContext(options, encryptionProvider);
-        context.Database.EnsureCreated();
-
-        var user = new UserEntity
+        using (var context = new DatabaseContext(options, encryptionProvider))
         {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john@doe.com",
-            EncryptedData = new byte[2] { 1, 2 },
-            EncryptedDataAsString = new byte[2] { 3, 4 }
-        };
+            context.Database.EnsureCreated();
 
-        context.Users.Add(user);
-        context.SaveChanges();
+            var user = new UserEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                Notes = "Hello world!",
+                EncryptedData = new byte[2] { 1, 2 },
+                EncryptedDataAsString = new byte[2] { 3, 4 }
+            };
 
-        Console.WriteLine($"Users count: {context.Users.Count()}");
+            context.Users.Add(user);
+            context.SaveChanges();
 
-        user = context.Users.First();
+            Console.WriteLine($"Users count: {context.Users.Count()}");
+        }
 
-        Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email}");
+        using (var context = new DatabaseContext(options, encryptionProvider))
+        {
+            UserEntity user = context.Users.First();
+
+            Console.WriteLine($"User: {user.FirstName} {user.LastName} - {user.Email} (Notes: {user.Notes})");
+        }
     }
 }

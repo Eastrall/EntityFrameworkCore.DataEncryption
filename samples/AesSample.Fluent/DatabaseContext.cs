@@ -26,10 +26,14 @@ public class DatabaseContext : DbContext
         userEntityBuilder.Property(x => x.FirstName).IsRequired();
         userEntityBuilder.Property(x => x.LastName).IsRequired();
         userEntityBuilder.Property(x => x.Email).IsRequired().IsEncrypted();
+        userEntityBuilder.Property(x => x.Notes).IsRequired().HasColumnType("BLOB").IsEncrypted(StorageFormat.Binary);
         userEntityBuilder.Property(x => x.EncryptedData).IsRequired().IsEncrypted();
         userEntityBuilder.Property(x => x.EncryptedDataAsString).IsRequired().HasColumnType("TEXT").IsEncrypted(StorageFormat.Base64);
 
-        modelBuilder.UseEncryption(_encryptionProvider);
+        if (_encryptionProvider is not null)
+        {
+            modelBuilder.UseEncryption(_encryptionProvider);
+        }
 
         base.OnModelCreating(modelBuilder);
     }

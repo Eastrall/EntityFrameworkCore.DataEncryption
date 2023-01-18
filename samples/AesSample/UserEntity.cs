@@ -21,6 +21,10 @@ public class UserEntity
     public string Email { get; set; }
 
     [Required]
+    [Encrypted(StorageFormat.Binary)]
+    public string Notes { get; set; }
+
+    [Required]
     [Encrypted]
     public byte[] EncryptedData { get; set; }
 
