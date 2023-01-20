@@ -162,31 +162,6 @@ public class DatabaseContext : DbContext
 }
 ```
 
-## Important notes
-
-### AES Provider structure
-
-The following section describes how encrypted fields using the built-in AES provider encrypts data.
-There is two available modes :
-
-* Fixed IV
-* Dynamic IV
-
-#### Fixed IV
-
-A fixed IV is generated at setup and is used for every encrypted fields on the database.
-This might be a security issue depending on your context.
-
-#### Dynamic IV
-
-For each encrypted field, the provider generates a new IV with a length of `16 bytes`. These 16 bytes are written at the begining of the `CryptoStream` followed by the actual input to encrypt.
-
-Similarly, for reading, the provider reads the first **16 bytes** from the input data converted as a `byte[]` to retrieve the initialization vector and then read the encrypted content.
-
-For more information, checkout the [`AesProvider`](https://github.com/Eastrall/EntityFrameworkCore.DataEncryption/blob/master/src/EntityFrameworkCore.DataEncryption/Providers/AesProvider.cs#L58) class.
-
-> :warning: When using Dynamic IV, you cannot use the Entity Framework LINQ extensions because the provider will generate a new IV per value, which will create unexpected behaviors.
-
 ## Thanks
 
 I would like to thank all the people that supports and contributes to the project and helped to improve the library. :smile:
