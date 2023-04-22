@@ -30,12 +30,17 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
     {
         byte[] inputData = input switch
         {
-            string => Encoding.UTF8.GetBytes(input.ToString()),
+            string => !string.IsNullOrEmpty(input.ToString()) ? Encoding.UTF8.GetBytes(input.ToString()) : null,
             byte[] => input as byte[],
             _ => null,
         };
 
         byte[] encryptedRawBytes = encryptionProvider.Encrypt(inputData);
+
+        if (encryptedRawBytes is null)
+        {
+            return default;
+        }
 
         object encryptedData = storageFormat switch
         {
