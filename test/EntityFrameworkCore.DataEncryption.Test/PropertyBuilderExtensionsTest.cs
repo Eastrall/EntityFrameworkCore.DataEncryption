@@ -36,7 +36,8 @@ public class PropertyBuilderExtensionsTest
             Name = name,
             NameAsBytes = name,
             ExtraData = bytes,
-            ExtraDataAsBytes = bytes
+            ExtraDataAsBytes = bytes,
+            EmptyString = ""
         };
 
         using var contextFactory = new DatabaseContextFactory();
@@ -52,6 +53,7 @@ public class PropertyBuilderExtensionsTest
             AssertPropertyAnnotations(entityType.GetProperty(nameof(UserEntity.ExtraData)), true, StorageFormat.Base64);
             AssertPropertyAnnotations(entityType.GetProperty(nameof(UserEntity.ExtraDataAsBytes)), true, StorageFormat.Binary);
             AssertPropertyAnnotations(entityType.GetProperty(nameof(UserEntity.Id)), false, StorageFormat.Default);
+            AssertPropertyAnnotations(entityType.GetProperty(nameof(UserEntity.EmptyString)), true, StorageFormat.Base64);
 
             context.Users.Add(user);
             context.SaveChanges();
@@ -66,6 +68,7 @@ public class PropertyBuilderExtensionsTest
             Assert.Equal(name, u.NameAsBytes);
             Assert.Equal(bytes, u.ExtraData);
             Assert.Equal(bytes, u.ExtraDataAsBytes);
+            Assert.Null(u.EmptyString);
         }
     }
 
@@ -106,6 +109,9 @@ public class PropertyBuilderExtensionsTest
 
         // Encrypted as raw byte array.
         public byte[] ExtraDataAsBytes { get; set; }
+
+        // Encrypt as Base64 string, but will be empty.
+        public string EmptyString { get; set; }
     }
 
     private class FluentDbContext : DbContext
@@ -134,6 +140,7 @@ public class PropertyBuilderExtensionsTest
             userEntityBuilder.Property(x => x.NameAsBytes).IsRequired().HasColumnType("BLOB").IsEncrypted(StorageFormat.Binary);
             userEntityBuilder.Property(x => x.ExtraData).IsRequired().HasColumnType("TEXT").IsEncrypted(StorageFormat.Base64);
             userEntityBuilder.Property(x => x.ExtraDataAsBytes).IsRequired().HasColumnType("BLOB").IsEncrypted(StorageFormat.Binary);
+            userEntityBuilder.Property(x => x.EmptyString).IsRequired(false).HasColumnType("TEXT").IsEncrypted(StorageFormat.Base64);
 
             modelBuilder.UseEncryption(_encryptionProvider);
         }
