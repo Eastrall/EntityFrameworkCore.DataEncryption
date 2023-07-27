@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -28,7 +29,9 @@ public static class ModelBuilderExtensions
     /// <returns>
     /// The updated <paramref name="modelBuilder"/>.
     /// </returns>
-    public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
+    public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder,
+        IEncryptionProvider encryptionProvider,
+        ISerializationProvider serializationProvider = null)
     {
         if (modelBuilder is null)
         {
@@ -38,6 +41,11 @@ public static class ModelBuilderExtensions
         if (encryptionProvider is null)
         {
             throw new ArgumentNullException(nameof(encryptionProvider));
+        }
+
+        if (serializationProvider is null)
+        {
+            serializationProvider = new BinarySerializationProvider();
         }
 
         foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
@@ -53,7 +61,7 @@ public static class ModelBuilderExtensions
                 }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                ValueConverter converter = GetValueConverter(encryptedProperty.Property.ClrType, encryptionProvider, encryptedProperty.StorageFormat);
+                ValueConverter converter = GetValueConverter(encryptedProperty.Property.ClrType, encryptionProvider, serializationProvider, encryptedProperty.StorageFormat);
 
                 if (converter != null)
                 {
@@ -65,15 +73,21 @@ public static class ModelBuilderExtensions
         return modelBuilder;
     }
 
-    private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
+    private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, ISerializationProvider serializationProvider, StorageFormat storageFormat)
     {
-        Type generic = typeof(EncryptionConverter<,>);
+        MethodInfo method = typeof(ModelBuilderExtensions).GetMethod(nameof(GetGenericValueConverter), BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo generic = method.MakeGenericMethod(propertyType);
+        return (ValueConverter)generic.Invoke(null,  new object[] { encryptionProvider, serializationProvider, storageFormat });
+    }
+
+    private static ValueConverter GetGenericValueConverter<TModel>(IEncryptionProvider encryptionProvider, ISerializationProvider serializationProvider, StorageFormat storageFormat)
+    {
         return storageFormat switch
         {
-            StorageFormat.Default or StorageFormat.Binary => (ValueConverter)Activator.CreateInstance(
-                generic.MakeGenericType(propertyType, typeof(byte[])), encryptionProvider, StorageFormat.Binary, null),
-            StorageFormat.Base64 => (ValueConverter)Activator.CreateInstance(
-                generic.MakeGenericType(propertyType, typeof(string)), encryptionProvider, StorageFormat.Base64, null),
+            StorageFormat.Default or StorageFormat.Binary =>
+                new EncryptionConverter<TModel, byte[]>(encryptionProvider, serializationProvider, new ByteArraySerializationProvider()),
+            StorageFormat.Base64 => 
+                new EncryptionConverter<TModel, string>(encryptionProvider, serializationProvider, new Base64SerializationProvider()),
             _ => throw new NotImplementedException()
         };
     }
@@ -110,7 +124,7 @@ public static class ModelBuilderExtensions
 
             IAnnotation encryptedAnnotation = property.FindAnnotation(PropertyAnnotations.IsEncrypted);
 
-            if (encryptedAnnotation != null && (bool)encryptedAnnotation.Value == true)
+            if (encryptedAnnotation != null && (bool)encryptedAnnotation.Value)
             {
                 storageFormat = (StorageFormat)property.FindAnnotation(PropertyAnnotations.StorageFormat)?.Value;
             }
