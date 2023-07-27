@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 
@@ -21,7 +22,7 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
     public EncryptionConverter(IEncryptionProvider encryptionProvider, StorageFormat storageFormat, ConverterMappingHints mappingHints = null)
         : base(
             x => Encrypt<TModel, TProvider>(x, encryptionProvider, storageFormat),
-            x => Decrypt<TModel, TProvider>(x, encryptionProvider, storageFormat), 
+            x => Decrypt<TModel, TProvider>(x, encryptionProvider, storageFormat),
             mappingHints)
     {
     }
@@ -32,7 +33,7 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         {
             string => !string.IsNullOrEmpty(input.ToString()) ? Encoding.UTF8.GetBytes(input.ToString()) : null,
             byte[] => input as byte[],
-            _ => null,
+            _ => JsonSerializer.SerializeToUtf8Bytes(input),
         };
 
         byte[] encryptedRawBytes = encryptionProvider.Encrypt(inputData);
@@ -65,12 +66,14 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         if (destinationType == typeof(string))
         {
             decryptedData = Encoding.UTF8.GetString(decryptedRawBytes).Trim('\0');
+            return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
         }
         else if (destinationType == typeof(byte[]))
         {
             decryptedData = decryptedRawBytes;
+            return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
         }
 
-        return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
+        return JsonSerializer.Deserialize<TModel>(decryptedRawBytes);
     }
 }

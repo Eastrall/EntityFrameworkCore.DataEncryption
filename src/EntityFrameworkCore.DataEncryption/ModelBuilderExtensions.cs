@@ -67,26 +67,15 @@ public static class ModelBuilderExtensions
 
     private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
     {
-        if (propertyType == typeof(string))
+        Type generic = typeof(EncryptionConverter<,>);
+        return storageFormat switch
         {
-            return storageFormat switch
-            {
-                StorageFormat.Default or StorageFormat.Base64 => new EncryptionConverter<string, string>(encryptionProvider, StorageFormat.Base64),
-                StorageFormat.Binary => new EncryptionConverter<string, byte[]>(encryptionProvider, StorageFormat.Binary),
-                _ => throw new NotImplementedException()
-            };
-        }
-        else if (propertyType == typeof(byte[]))
-        {
-            return storageFormat switch
-            {
-                StorageFormat.Default or StorageFormat.Binary => new EncryptionConverter<byte[], byte[]>(encryptionProvider, StorageFormat.Binary),
-                StorageFormat.Base64 => new EncryptionConverter<byte[], string>(encryptionProvider, StorageFormat.Base64),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        throw new NotImplementedException($"Type {propertyType.Name} does not support encryption.");
+            StorageFormat.Default or StorageFormat.Binary => (ValueConverter)Activator.CreateInstance(
+                generic.MakeGenericType(propertyType, typeof(byte[])), encryptionProvider, StorageFormat.Binary, null),
+            StorageFormat.Base64 => (ValueConverter)Activator.CreateInstance(
+                generic.MakeGenericType(propertyType, typeof(string)), encryptionProvider, StorageFormat.Base64, null),
+            _ => throw new NotImplementedException()
+        };
     }
 
     private static IEnumerable<EncryptedProperty> GetEntityEncryptedProperties(IMutableEntityType entity)
