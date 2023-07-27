@@ -37,11 +37,8 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         };
 
         byte[] encryptedRawBytes = encryptionProvider.Encrypt(inputData);
-
-        if (encryptedRawBytes is null)
-        {
+        if (encryptedRawBytes is null || encryptedRawBytes.Length == 0)
             return default;
-        }
 
         object encryptedData = storageFormat switch
         {
@@ -61,17 +58,17 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
             _ => input as byte[]
         };
         byte[] decryptedRawBytes = encryptionProvider.Decrypt(inputData);
-        object decryptedData = null;
-
+        if (decryptedRawBytes is null || decryptedRawBytes.Length == 0)
+            return default;
+        
         if (destinationType == typeof(string))
         {
-            decryptedData = Encoding.UTF8.GetString(decryptedRawBytes).Trim('\0');
+            string decryptedData = Encoding.UTF8.GetString(decryptedRawBytes).Trim('\0');
             return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
         }
         else if (destinationType == typeof(byte[]))
         {
-            decryptedData = decryptedRawBytes;
-            return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
+            return (TModel)Convert.ChangeType(decryptedRawBytes, typeof(TModel));
         }
 
         return JsonSerializer.Deserialize<TModel>(decryptedRawBytes);
