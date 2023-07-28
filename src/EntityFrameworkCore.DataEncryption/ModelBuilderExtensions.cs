@@ -78,7 +78,7 @@ public static class ModelBuilderExtensions
     {
         MethodInfo method = typeof(ModelBuilderExtensions).GetMethod(nameof(GetGenericValueConverter), BindingFlags.NonPublic | BindingFlags.Static);
         MethodInfo generic = method.MakeGenericMethod(propertyType);
-        return (ValueConverter)generic.Invoke(null,  new object[] { encryptionProvider, serializationProvider, storageFormat });
+        return (ValueConverter)generic.Invoke(null, new object[] { encryptionProvider, serializationProvider, storageFormat });
     }
 
     private static ValueConverter GetGenericValueConverter<TModel>(IEncryptionProvider encryptionProvider, ISerializationProvider serializationProvider, StorageFormat storageFormat)
@@ -87,7 +87,7 @@ public static class ModelBuilderExtensions
         {
             StorageFormat.Default or StorageFormat.Binary =>
                 new EncryptionConverter<TModel, byte[]>(encryptionProvider, serializationProvider, new ByteArraySerializationProvider()),
-            StorageFormat.Base64 => 
+            StorageFormat.Base64 =>
                 new EncryptionConverter<TModel, string>(encryptionProvider, serializationProvider, new Base64SerializationProvider()),
             _ => throw new NotImplementedException()
         };
