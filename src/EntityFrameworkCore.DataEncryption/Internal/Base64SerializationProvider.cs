@@ -14,7 +14,7 @@ internal sealed class Base64SerializationProvider : ISerializationProvider
     public TModel Deserialize<TModel>(byte[] input)
     {
         if (typeof(TModel) == typeof(string))
-            return (TModel)Convert.ChangeType(input, typeof(TModel));
+            return (TModel)Convert.ChangeType(Convert.ToBase64String(input), typeof(TModel));
         throw new NotSupportedException();
     }
 }
