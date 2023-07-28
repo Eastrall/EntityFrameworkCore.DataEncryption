@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+using Microsoft.EntityFrameworkCore.DataEncryption.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;

@@ -2,10 +2,10 @@
 using System.Text;
 using System.Text.Json;
 
-namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Serialization;
 
 [Obsolete("Use only for old projects that used an old version of this library")]
-internal sealed class GenericSerializationProvider : ISerializationProvider
+public sealed class GenericSerializationProvider : ISerializationProvider
 {
     public byte[] Serialize<TModel>(TModel input)
     {

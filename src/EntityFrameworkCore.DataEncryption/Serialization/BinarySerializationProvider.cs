@@ -1,8 +1,8 @@
 ﻿using MessagePack;
 
-namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Serialization;
 
-internal sealed class BinarySerializationProvider : ISerializationProvider
+public sealed class BinarySerializationProvider : ISerializationProvider
 {
     public byte[] Serialize<TModel>(TModel input)
     {

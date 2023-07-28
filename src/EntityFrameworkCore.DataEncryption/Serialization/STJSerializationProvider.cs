@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 
-namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+namespace Microsoft.EntityFrameworkCore.DataEncryption.Serialization;
 
-internal sealed class STJSerializationProvider : ISerializationProvider
+public sealed class STJSerializationProvider : ISerializationProvider
 {
     public byte[] Serialize<TModel>(TModel input)
     {
