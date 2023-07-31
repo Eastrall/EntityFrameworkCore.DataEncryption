@@ -25,7 +25,7 @@ public sealed class EncryptedAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of the <see cref="EncryptedAttribute"/> class.
     /// </summary>
-    public EncryptedAttribute() 
+    public EncryptedAttribute()
         : this(StorageFormat.Default)
     {
     }

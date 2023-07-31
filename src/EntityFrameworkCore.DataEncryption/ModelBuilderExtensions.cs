@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.DataEncryption.Internal;
+using Microsoft.EntityFrameworkCore.DataEncryption.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -28,7 +30,9 @@ public static class ModelBuilderExtensions
     /// <returns>
     /// The updated <paramref name="modelBuilder"/>.
     /// </returns>
-    public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder, IEncryptionProvider encryptionProvider)
+    public static ModelBuilder UseEncryption(this ModelBuilder modelBuilder,
+        IEncryptionProvider encryptionProvider,
+        ISerializationProvider serializationProvider = null)
     {
         if (modelBuilder is null)
         {
@@ -38,6 +42,11 @@ public static class ModelBuilderExtensions
         if (encryptionProvider is null)
         {
             throw new ArgumentNullException(nameof(encryptionProvider));
+        }
+
+        if (serializationProvider is null)
+        {
+            serializationProvider = new BinarySerializationProvider();
         }
 
         foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
@@ -53,7 +62,7 @@ public static class ModelBuilderExtensions
                 }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                ValueConverter converter = GetValueConverter(encryptedProperty.Property.ClrType, encryptionProvider, encryptedProperty.StorageFormat);
+                ValueConverter converter = GetValueConverter(encryptedProperty.Property.ClrType, encryptionProvider, serializationProvider, encryptedProperty.StorageFormat);
 
                 if (converter != null)
                 {
@@ -65,28 +74,23 @@ public static class ModelBuilderExtensions
         return modelBuilder;
     }
 
-    private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
+    private static ValueConverter GetValueConverter(Type propertyType, IEncryptionProvider encryptionProvider, ISerializationProvider serializationProvider, StorageFormat storageFormat)
     {
-        if (propertyType == typeof(string))
-        {
-            return storageFormat switch
-            {
-                StorageFormat.Default or StorageFormat.Base64 => new EncryptionConverter<string, string>(encryptionProvider, StorageFormat.Base64),
-                StorageFormat.Binary => new EncryptionConverter<string, byte[]>(encryptionProvider, StorageFormat.Binary),
-                _ => throw new NotImplementedException()
-            };
-        }
-        else if (propertyType == typeof(byte[]))
-        {
-            return storageFormat switch
-            {
-                StorageFormat.Default or StorageFormat.Binary => new EncryptionConverter<byte[], byte[]>(encryptionProvider, StorageFormat.Binary),
-                StorageFormat.Base64 => new EncryptionConverter<byte[], string>(encryptionProvider, StorageFormat.Base64),
-                _ => throw new NotImplementedException()
-            };
-        }
+        MethodInfo method = typeof(ModelBuilderExtensions).GetMethod(nameof(GetGenericValueConverter), BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo generic = method.MakeGenericMethod(propertyType);
+        return (ValueConverter)generic.Invoke(null, new object[] { encryptionProvider, serializationProvider, storageFormat });
+    }
 
-        throw new NotImplementedException($"Type {propertyType.Name} does not support encryption.");
+    private static ValueConverter GetGenericValueConverter<TModel>(IEncryptionProvider encryptionProvider, ISerializationProvider serializationProvider, StorageFormat storageFormat)
+    {
+        return storageFormat switch
+        {
+            StorageFormat.Default or StorageFormat.Binary =>
+                new EncryptionConverter<TModel, byte[]>(encryptionProvider, serializationProvider, new ByteArraySerializationProvider()),
+            StorageFormat.Base64 =>
+                new EncryptionConverter<TModel, string>(encryptionProvider, serializationProvider, new Base64SerializationProvider()),
+            _ => throw new NotImplementedException()
+        };
     }
 
     private static IEnumerable<EncryptedProperty> GetEntityEncryptedProperties(IMutableEntityType entity)
@@ -121,7 +125,7 @@ public static class ModelBuilderExtensions
 
             IAnnotation encryptedAnnotation = property.FindAnnotation(PropertyAnnotations.IsEncrypted);
 
-            if (encryptedAnnotation != null && (bool)encryptedAnnotation.Value == true)
+            if (encryptedAnnotation != null && (bool)encryptedAnnotation.Value)
             {
                 storageFormat = (StorageFormat)property.FindAnnotation(PropertyAnnotations.StorageFormat)?.Value;
             }

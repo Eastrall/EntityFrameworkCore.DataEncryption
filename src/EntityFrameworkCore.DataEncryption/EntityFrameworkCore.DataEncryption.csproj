@@ -28,6 +28,11 @@
 		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
 	</PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.5.124" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0" />
+  </ItemGroup>
+
 	<ItemGroup Condition="('$(TargetFramework)' == 'netstandard2.0')">
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[3.1,6)" />
 	</ItemGroup>
@@ -57,10 +62,6 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Microsoft.EntityFrameworkCore.Encryption.Test</_Parameter1>
 		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Migration\" />
 	</ItemGroup>
 
 </Project>

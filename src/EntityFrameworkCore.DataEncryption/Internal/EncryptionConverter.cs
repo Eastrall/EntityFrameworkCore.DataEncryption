@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.DataEncryption.Internal;
 
@@ -16,61 +13,36 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
     /// Creates a new <see cref="EncryptionConverter{TModel,TProvider}"/> instance.
     /// </summary>
     /// <param name="encryptionProvider">Encryption provider to use.</param>
-    /// <param name="storageFormat">Encryption storage format.</param>
+    /// <param name="modelSerialization"></param>
+    /// <param name="providerSerialization"></param>
     /// <param name="mappingHints">Mapping hints.</param>
-    public EncryptionConverter(IEncryptionProvider encryptionProvider, StorageFormat storageFormat, ConverterMappingHints mappingHints = null)
+    public EncryptionConverter(
+        IEncryptionProvider encryptionProvider,
+        ISerializationProvider modelSerialization,
+        ISerializationProvider providerSerialization,
+        ConverterMappingHints mappingHints = null)
         : base(
-            x => Encrypt<TModel, TProvider>(x, encryptionProvider, storageFormat),
-            x => Decrypt<TModel, TProvider>(x, encryptionProvider, storageFormat), 
+            x => Encrypt<TModel, TProvider>(x, encryptionProvider, modelSerialization, providerSerialization),
+            x => Decrypt<TModel, TProvider>(x, encryptionProvider, modelSerialization, providerSerialization),
             mappingHints)
     {
     }
 
-    private static TOutput Encrypt<TInput, TOutput>(TInput input, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
+    private static TOutput Encrypt<TInput, TOutput>(TInput input, IEncryptionProvider encryptionProvider, ISerializationProvider modelSerialization, ISerializationProvider providerSerialization)
     {
-        byte[] inputData = input switch
-        {
-            string => !string.IsNullOrEmpty(input.ToString()) ? Encoding.UTF8.GetBytes(input.ToString()) : null,
-            byte[] => input as byte[],
-            _ => null,
-        };
-
+        byte[] inputData = modelSerialization.Serialize(input);
         byte[] encryptedRawBytes = encryptionProvider.Encrypt(inputData);
-
-        if (encryptedRawBytes is null)
-        {
+        if (encryptedRawBytes is null || encryptedRawBytes.Length == 0)
             return default;
-        }
-
-        object encryptedData = storageFormat switch
-        {
-            StorageFormat.Default or StorageFormat.Base64 => Convert.ToBase64String(encryptedRawBytes),
-            _ => encryptedRawBytes
-        };
-
-        return (TOutput)Convert.ChangeType(encryptedData, typeof(TOutput));
+        return providerSerialization.Deserialize<TOutput>(encryptedRawBytes);
     }
 
-    private static TModel Decrypt<TInput, TOupout>(TProvider input, IEncryptionProvider encryptionProvider, StorageFormat storageFormat)
+    private static TInput Decrypt<TInput, TOutput>(TOutput input, IEncryptionProvider encryptionProvider, ISerializationProvider modelSerialization, ISerializationProvider providerSerialization)
     {
-        Type destinationType = typeof(TModel);
-        byte[] inputData = storageFormat switch
-        {
-            StorageFormat.Default or StorageFormat.Base64 => Convert.FromBase64String(input.ToString()),
-            _ => input as byte[]
-        };
+        byte[] inputData = providerSerialization.Serialize(input);
         byte[] decryptedRawBytes = encryptionProvider.Decrypt(inputData);
-        object decryptedData = null;
-
-        if (destinationType == typeof(string))
-        {
-            decryptedData = Encoding.UTF8.GetString(decryptedRawBytes).Trim('\0');
-        }
-        else if (destinationType == typeof(byte[]))
-        {
-            decryptedData = decryptedRawBytes;
-        }
-
-        return (TModel)Convert.ChangeType(decryptedData, typeof(TModel));
+        if (decryptedRawBytes is null || decryptedRawBytes.Length == 0)
+            return default;
+        return modelSerialization.Deserialize<TInput>(decryptedRawBytes);
     }
 }
