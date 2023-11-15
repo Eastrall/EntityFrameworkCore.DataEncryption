@@ -22,6 +22,7 @@ jobs:
           5.0.x
           6.0.x
           7.0.x
+          8.0.x
 
     - name: Display .NET version
       run: dotnet --version
@@ -30,7 +31,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build EntityFrameworkCore.DataEncryption.sln --configuration Release -f net6.0 --no-restore
+      run: dotnet build EntityFrameworkCore.DataEncryption.sln --configuration Release -f net8.0 --no-restore
 
     - name: Run unit tests
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings ./test/EntityFrameworkCore.DataEncryption.Test/runsettings.xml
