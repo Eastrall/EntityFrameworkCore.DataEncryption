@@ -62,7 +62,7 @@ internal sealed class EncryptionConverter<TModel, TProvider> : ValueConverter<TM
         byte[] decryptedRawBytes = encryptionProvider.Decrypt(inputData);
         object decryptedData = null;
 
-        if (destinationType == typeof(string))
+        if (decryptedRawBytes != null && destinationType == typeof(string))
         {
             decryptedData = Encoding.UTF8.GetString(decryptedRawBytes).Trim('\0');
         }
